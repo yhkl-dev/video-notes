@@ -1,0 +1,42 @@
+{
+  "extensionName": {
+    "message": "Video Notes",
+    "description": "Name of the extension."
+  },
+  "extensionDescription": {
+    "message": "An extension that allow user control video slice and play",
+    "description": "Description of the extension."
+  },
+  "noVideo": {
+    "message": "No video information on the current page",
+    "description": "no video info message"
+  },
+  "timeSegment": {
+    "message": "Time Segments",
+    "description": "no video info message"
+  },
+  "addTimeSegment": {
+    "message": "Add Time Segment",
+    "description": "no video info message"
+  },
+  "videoInfo": {
+    "message": "Video Info",
+    "description": "video info"
+  },
+  "duration": {
+    "message": "Duration",
+    "description": "video info"
+  },
+  "startTime": {
+    "message": "Start time (e.g., 1:30)",
+    "description": "video info"
+  },
+  "endTime": {
+    "message": "End time (e.g., 2:30)",
+    "description": "video info"
+  },
+  "alertMessage": {
+    "message": "End time cannot greater than video duration",
+    "description": "alert message hint"
+  }
+}

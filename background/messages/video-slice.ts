@@ -1,35 +1,27 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
-import { Storage } from "@plasmohq/storage"
 
 export type RequestBody = {
   startTime: number
   endTime: number
+  tabId: number
 }
 
-export type RequestResponse = number
-
-const handler: PlasmoMessaging.MessageHandler<
-  RequestBody,
-  RequestResponse
-> = async (req, res) => {
-  console.log(req.body.startTime)
-  console.log(req.body.endTime)
-  const storage = new Storage()
-
-  const tabId = (await storage.get("tabId")) as number
+const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
   chrome.scripting
     .executeScript({
-      target: { tabId: tabId },
-      func: (startTime, endTime) => {
+      target: { tabId: req.body.tabId },
+      func: (startTime: number, endTime: number) => {
         const video = document.querySelector("video")
         video.currentTime = startTime
-        video.addEventListener("timeupdate", () => {
-          if (video.currentTime >= endTime) {
-            video.pause()
-          }
-        })
-        video.play()
-        return video.src
+        video.addEventListener(
+          "timeupdate",
+          () => {
+            if (video.currentTime >= endTime) {
+              video.pause()
+            }
+          },
+          { once: true }
+        )
       },
       args: [req.body.startTime, req.body.endTime]
     })

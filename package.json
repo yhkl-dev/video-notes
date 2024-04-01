@@ -2,7 +2,7 @@
   "name": "video-notes",
   "displayName": "Video notes",
   "version": "0.0.1",
-  "description": "an extension that allow user control video slice and play",
+  "description": "An extension that allow user control video slice and play",
   "author": "kaiyang939325@gmail.com",
   "scripts": {
     "dev": "plasmo dev",

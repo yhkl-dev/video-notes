@@ -1,0 +1,42 @@
+{
+  "extensionName": {
+    "message": "视频切片笔记",
+    "description": "Name of the extension."
+  },
+  "extensionDescription": {
+    "message": "允许用户自定义播放时间的插件",
+    "description": "Description of the extension."
+  },
+  "noVideo": {
+    "message": "当前页面无视频信息",
+    "description": "no video info message"
+  },
+  "timeSegment": {
+    "message": "时间段",
+    "description": "no video info message"
+  },
+  "addTimeSegment": {
+    "message": "添加时间段",
+    "description": "add time segment"
+  },
+  "videoInfo": {
+    "message": "视频信息",
+    "description": "video info"
+  },
+  "duration": {
+    "message": "时长",
+    "description": "video info"
+  },
+  "startTime": {
+    "message": "开始时间 (例: 1:30)",
+    "description": "video info"
+  },
+  "endTime": {
+    "message": "结束时间 (例: 2:30)",
+    "description": "video info"
+  },
+  "alertMessage": {
+    "message": "结束时间不能大于视频时长。",
+    "description": "alert message hint"
+  }
+}
