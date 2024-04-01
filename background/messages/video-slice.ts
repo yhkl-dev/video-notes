@@ -22,6 +22,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
           },
           { once: true }
         )
+        video.pause()
       },
       args: [req.body.startTime, req.body.endTime]
     })
