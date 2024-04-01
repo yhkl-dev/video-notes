@@ -12,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -27,8 +26,9 @@ jobs:
 
       - name: Build
         run: pnpm build
-      - name: Zip build directory
-        run: zip -r build.zip build/chrome-mv3-prod
+
+      - name: Package the extension into a zip artifact
+        run: pnpm package
 
       - name: Create Release
         id: create_release
@@ -47,6 +47,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./build.zip
-          asset_name: build.zip
+          asset_path: build/chrome-mv3-prod.zip
+          asset_name: chrome-mv3-prod.zip
           asset_content_type: application/zip
