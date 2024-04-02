@@ -50,8 +50,11 @@ function Popup() {
       alert("start time cannot greater than end time")
       return
     }
-    if (endTimeInSeconds > videoInfo.duration) {
-      alert("end time cannot greater than video duration")
+    if (
+      startTimeInSeconds > videoInfo.duration ||
+      endTimeInSeconds > videoInfo.duration
+    ) {
+      alert("start time or end time cannot greater than video duration")
       return
     }
     const newSlice = {
