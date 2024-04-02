@@ -1,4 +1,4 @@
-# Chrome Extension Feature Documentation
+# Video Notes
 
 This Chrome extension is designed to offer a streamlined interface for users to segment and manage video playback times. With this extension, users can specify particular segments of a video and perform actions such as play, pause, reset, or delete on these segments.
 
