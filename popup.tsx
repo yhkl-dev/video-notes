@@ -11,7 +11,11 @@ import type { VideoInfo, VideoSlice } from "~types"
 import "./style.css"
 
 function Popup() {
-  const [videoInfo, setVideoInfo] = useState<VideoInfo>({})
+  const [videoInfo, setVideoInfo] = useState<VideoInfo>({
+    url: "",
+    duration: 0
+  })
+  const [url, setURL] = useState<string>("")
   const [videoSlices, setVideoSlices] = useState<VideoSlice[]>([])
   const [tabId, setTabId] = useState<number>(0)
 
@@ -130,11 +134,11 @@ function Popup() {
 
   const refresh = () => {
     sendToBackground({
-      name: "update-video-info"
+      name: "get-video-info"
     }).then((res) => {
-      console.log(res)
       setVideoInfo(res.video)
       setTabId(res.tabId)
+      setURL(res.videoURL)
     })
   }
 
@@ -144,50 +148,13 @@ function Popup() {
 
   return (
     <div className="p-4 bg-white shadow-lg rounded-lg max-w-md mx-auto w-[500px]">
-      <h2 className="text-xl font-semibold mb-4">
-        {chrome.i18n.getMessage("timeSegment")}
-      </h2>
-      <ul className="mb-4">
-        {videoSlices.map((slice: VideoSlice, index: number) => (
-          <li
-            className="flex items-center p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            key={index}>
-            Start: {slice.startTimeInput} - End: {slice.endTimeInput}
-            <img
-              src={slice.isPlaying ? pauseIconBase64 : playIconBase64}
-              alt={slice.isPlaying ? "Play" : "Pause"}
-              className="ml-2 h-6 w-6 cursor-pointer"
-              onClick={() => {
-                handlePlayOrPause(slice, index)
-              }}
-            />
-            <img
-              src={resetIconBase64}
-              alt="Reset"
-              className="ml-2 h-6 w-6 cursor-pointer"
-              onClick={() => {
-                handleReset(slice, index)
-              }}
-            />
-            <img
-              src={clearIconBase64}
-              alt="Remove"
-              className="ml-2 h-6 w-6 cursor-pointer"
-              onClick={(e) => {
-                removeSlice(index)
-              }}
-            />
-          </li>
-        ))}
-      </ul>
-
       {!videoInfo && <div>{chrome.i18n.getMessage("noVideo")}</div>}
       {videoInfo && (
         <div>
           <h2 className="text-xl font-semibold mb-4">
             {chrome.i18n.getMessage("videoInfo")}
           </h2>
-          <p className="mb-2">URL: {videoInfo.url}</p>
+          <p className="mb-2">URL: {url}</p>
           <p className="mb-4">
             {" "}
             {chrome.i18n.getMessage("duration")}:{" "}
@@ -250,6 +217,46 @@ function Popup() {
             onClick={addSlice}>
             {chrome.i18n.getMessage("addTimeSegment")}
           </button>
+        </div>
+      )}
+      {videoInfo && (
+        <div className="mt-4">
+          <h2 className="text-xl font-semibold mb-4">
+            {chrome.i18n.getMessage("timeSegment")}
+          </h2>
+          <ul className="mb-4">
+            {videoSlices.map((slice: VideoSlice, index: number) => (
+              <li
+                className="flex items-center p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                key={index}>
+                Start: {slice.startTimeInput} - End: {slice.endTimeInput}
+                <img
+                  src={slice.isPlaying ? pauseIconBase64 : playIconBase64}
+                  alt={slice.isPlaying ? "Play" : "Pause"}
+                  className="ml-2 h-6 w-6 cursor-pointer"
+                  onClick={() => {
+                    handlePlayOrPause(slice, index)
+                  }}
+                />
+                <img
+                  src={resetIconBase64}
+                  alt="Reset"
+                  className="ml-2 h-6 w-6 cursor-pointer"
+                  onClick={() => {
+                    handleReset(slice, index)
+                  }}
+                />
+                <img
+                  src={clearIconBase64}
+                  alt="Remove"
+                  className="ml-2 h-6 w-6 cursor-pointer"
+                  onClick={(e) => {
+                    removeSlice(index)
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

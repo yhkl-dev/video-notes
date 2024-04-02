@@ -9,10 +9,11 @@ export type RequestBody = {
 
 export type RequestResponse = {
   tabId: number
+  videoURL: string
   video: VideoInfo
 }
 
-function getVideoInfo() {
+function getVideoInfo(): VideoInfo {
   const video = document.querySelector("video")
   if (video) {
     return {
@@ -37,6 +38,7 @@ const handler: PlasmoMessaging.MessageHandler<
       .then((resp) => {
         res.send({
           tabId: currentTabId,
+          videoURL: tabs[0].url,
           video: resp[0].result
         })
       })
