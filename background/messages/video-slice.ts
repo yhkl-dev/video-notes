@@ -20,7 +20,7 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
               video.pause()
             }
           },
-          { once: true }
+          { once: true } // only once for timeupdate events, otherwise video will pause when you call is for more 1 time
         )
         video.pause()
       },

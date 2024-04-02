@@ -1,33 +1,35 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# Chrome Extension Feature Documentation
 
-## Getting Started
+This Chrome extension is designed to offer a streamlined interface for users to segment and manage video playback times. With this extension, users can specify particular segments of a video and perform actions such as play, pause, reset, or delete on these segments.
 
-First, run the development server:
+## Key Features
 
-```bash
-pnpm dev
-# or
-npm run dev
-```
+- **Video Information Display**: The extension displays the current video's URL and duration, providing users with quick insights into the basic information of the video.
 
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
+- **Segment Management**:
 
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
+  - **Add Segments**: Users can add a new video segment by setting a start and end time. The extension will alert the user if the start time is greater than the end time or if the end time exceeds the video's total duration.
+  - **Play/Pause**: For each segment, users can control the video's playback state by clicking the play or pause button.
+  - **Reset Segments**: Users have the option to reset a segment to its initial state.
+  - **Delete Segments**: Allows users to remove segments from the list that are no longer needed.
 
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
+- **Time Selector**: Hour, minute, and second dropdown selectors are provided for users to accurately set the start and end times of segments.
 
-## Making production build
+- **Video Control**: Through communication with a background script, the extension can control video playback, pause, and reset actions.
 
-Run the following:
+- **Automatic Video Information Refresh**: The extension automatically refreshes video information upon launch to ensure users see the most current state of the video.
 
-```bash
-pnpm build
-# or
-npm run build
-```
+## How to Use
 
-This should create a production bundle for your extension, ready to be zipped and published to the stores.
+1. After installing the extension, open a webpage containing a video.
+2. Click on the extension icon in the browser toolbar to open the extension's popup window.
+3. If the video information has loaded, you can start adding segments or manage existing ones.
+4. Use the dropdown selectors to set the start and end times of a segment, then click the "Add Segment" button.
+5. For each segment, you can use the play, pause, reset, or delete buttons to perform the corresponding actions.
 
-## Submit to the webstores
+## Notes
 
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+- Ensure that your video page is fully loaded so that the extension can correctly detect and fetch video information.
+- If you switch videos or video pages, you may need to click the refresh button in the extension to update the video information.
+
+This extension is designed to enhance the efficiency of video viewing and management, hoping to help you better control and enjoy your video content.
