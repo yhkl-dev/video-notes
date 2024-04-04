@@ -38,5 +38,9 @@
   "alertMessage": {
     "message": "结束时间不能大于视频时长。",
     "description": "alert message hint"
+  },
+  "title": {
+    "message": "视频笔记",
+    "description": "title"
   }
 }

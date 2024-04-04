@@ -148,10 +148,27 @@ function Popup() {
 
   return (
     <div className="p-4 bg-white shadow-lg rounded-lg max-w-md mx-auto w-[500px]">
+      <h1 className="text-2xl font-bold mb-6">
+        {chrome.i18n.getMessage("title")}
+      </h1>
+
       {!videoInfo && <div>{chrome.i18n.getMessage("noVideo")}</div>}
       {videoInfo && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <svg
+              className="w-6 h-6 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
             {chrome.i18n.getMessage("videoInfo")}
           </h2>
           <p className="mb-2">URL: {url}</p>
@@ -213,8 +230,21 @@ function Popup() {
             </div>
           </div>
           <button
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors ease-in-out duration-150"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-150 ease-in-out flex items-center justify-center"
             onClick={addSlice}>
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
             {chrome.i18n.getMessage("addTimeSegment")}
           </button>
         </div>
@@ -226,33 +256,25 @@ function Popup() {
           </h2>
           <ul className="mb-4">
             {videoSlices.map((slice: VideoSlice, index: number) => (
-              <li
-                className="flex items-center p-3 mb-2 bg-grau-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                key={index}>
+              <li className="flex items-center p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
                 Start: {slice.startTimeInput} - End: {slice.endTimeInput}
                 <img
                   src={slice.isPlaying ? pauseIconBase64 : playIconBase64}
-                  alt={slice.isPlaying ? "Play" : "Pause"}
-                  className="ml-2 h-6 w-6 cursor-pointer"
-                  onClick={() => {
-                    handlePlayOrPause(slice, index)
-                  }}
+                  alt={slice.isPlaying ? "Pause" : "Play"}
+                  className="ml-2 h-6 w-6 cursor-pointer transition duration-150 ease-in-out opacity-70 hover:opacity-100"
+                  onClick={() => handlePlayOrPause(slice, index)}
                 />
                 <img
                   src={resetIconBase64}
                   alt="Reset"
-                  className="ml-2 h-6 w-6 cursor-pointer"
-                  onClick={() => {
-                    handleReset(slice, index)
-                  }}
+                  className="ml-2 h-6 w-6 cursor-pointer transition duration-150 ease-in-out opacity-70 hover:opacity-100"
+                  onClick={() => handleReset(slice, index)}
                 />
                 <img
                   src={clearIconBase64}
                   alt="Remove"
-                  className="ml-2 h-6 w-6 cursor-pointer"
-                  onClick={(e) => {
-                    removeSlice(index)
-                  }}
+                  className="ml-2 h-6 w-6 cursor-pointer transition duration-150 ease-in-out opacity-70 hover:opacity-100"
+                  onClick={() => removeSlice(index)}
                 />
               </li>
             ))}

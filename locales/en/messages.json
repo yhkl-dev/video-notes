@@ -38,5 +38,9 @@
   "alertMessage": {
     "message": "End time can not greater than video duration",
     "description": "alert message hint"
+  },
+  "title": {
+    "message": "Video Notes",
+    "description": "title"
   }
 }
