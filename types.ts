@@ -9,6 +9,8 @@ export type VideoSlice = {
   startTimeInput: string
   endTimeInput: string
   isPlaying: boolean
+  note: string
+  editing: boolean
 }
 
 export type VideoResult = {

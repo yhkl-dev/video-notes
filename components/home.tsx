@@ -2,7 +2,6 @@ import clearIconBase64 from "data-base64:~assets/clear.png"
 import pauseIconBase64 from "data-base64:~assets/pause.png"
 import playIconBase64 from "data-base64:~assets/play.png"
 import resetIconBase64 from "data-base64:~assets/reset.png"
-import { RefreshCcw } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
@@ -41,6 +40,45 @@ export default function Home({
       )
     }
     return options
+  }
+
+  const handleNoteChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+    index: number
+  ) => {
+    const newNote = event.target.value
+    setVideoSlices((currentSlices) =>
+      currentSlices.map((slice, idx) => {
+        if (idx === index) {
+          return { ...slice, note: newNote }
+        }
+        return slice
+      })
+    )
+  }
+
+  const toggleEdit = (index: number) => {
+    setVideoSlices((currentSlices) =>
+      currentSlices.map((slice, idx) => {
+        if (idx === index) {
+          return { ...slice, editing: !slice.editing }
+        }
+        return slice
+      })
+    )
+  }
+
+  const saveNotes = (index: number) => {
+    setVideoSlices((currentSlices) => {
+      const updatedSlices = currentSlices.map((slice, idx) => {
+        if (idx === index) {
+          return { ...slice, editing: false }
+        }
+        return slice
+      })
+      localstorage.set(currentVideo.videoURL, updatedSlices)
+      return updatedSlices
+    })
   }
 
   const addSlice = async () => {
@@ -155,7 +193,20 @@ export default function Home({
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg hover:shadow-xl transition duration-300 ease-in-out"
             onClick={refresh}>
-            <RefreshCcw className="w-4 h-4 inline-block mr-2" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              className="lucide lucide-rotate-ccw w-4 h-4 inline-block mr-2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+            </svg>
             {chrome.i18n.getMessage("reload")}
           </button>
         </div>
@@ -181,7 +232,20 @@ export default function Home({
               className="ml-2 bg-transparent rounded-full transition duration-150 ease-in-out hover:bg-gray-100 rounded-md"
               title={chrome.i18n.getMessage("reload")}
               onClick={refresh}>
-              <RefreshCcw className="w-4 h-4" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                className="lucide lucide-rotate-ccw w-4 h-4 inline-block mr-2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
             </button>
           </h2>
           <p className="mb-2">
@@ -283,26 +347,98 @@ export default function Home({
             {videoSlices.map((slice: VideoSlice, index: number) => (
               <li
                 key={index}
-                className="flex items-center p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
-                Start: {slice.startTimeInput} - End: {slice.endTimeInput}
-                <img
-                  src={slice.isPlaying ? pauseIconBase64 : playIconBase64}
-                  alt={slice.isPlaying ? "Pause" : "Play"}
-                  className="ml-2 h-6 w-6 cursor-pointer transition duration-150 ease-in-out opacity-70 hover:opacity-100"
-                  onClick={() => handlePlayOrPause(slice, index)}
-                />
-                <img
-                  src={resetIconBase64}
-                  alt="Reset"
-                  className="ml-2 h-6 w-6 cursor-pointer transition duration-150 ease-in-out opacity-70 hover:opacity-100"
-                  onClick={() => handleReset(slice, index)}
-                />
-                <img
-                  src={clearIconBase64}
-                  alt="Remove"
-                  className="ml-2 h-6 w-6 cursor-pointer transition duration-150 ease-in-out opacity-70 hover:opacity-100"
-                  onClick={() => removeSlice(index)}
-                />
+                className="flex flex-col p-3 mb-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <div>
+                    Start: {slice.startTimeInput} - End: {slice.endTimeInput}
+                  </div>
+                  <div className="flex items-center">
+                    <img
+                      src={slice.isPlaying ? pauseIconBase64 : playIconBase64}
+                      alt={slice.isPlaying ? "Pause" : "Play"}
+                      className="ml-2 h-6 w-6 cursor-pointer"
+                      onClick={() => handlePlayOrPause(slice, index)}
+                    />
+                    <img
+                      src={resetIconBase64}
+                      alt="Reset"
+                      className="ml-2 h-6 w-6 cursor-pointer"
+                      onClick={() => handleReset(slice, index)}
+                    />
+                    <img
+                      src={clearIconBase64}
+                      alt="Remove"
+                      className="ml-2 h-6 w-6 cursor-pointer"
+                      onClick={() => removeSlice(index)}
+                    />
+                  </div>
+                </div>
+                {slice.editing ? (
+                  <textarea
+                    className="mt-2 p-3 border border-gray-200 rounded-lg shadow-lg transition-shadow duration-300 ease-in-out focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full"
+                    value={slice.note || ""}
+                    onChange={(e) => handleNoteChange(e, index)}
+                  />
+                ) : (
+                  <p className="p-3 bg-gray-100 rounded-lg shadow">
+                    {slice.note || "No notes"}
+                  </p>
+                )}
+                <div className="flex justify-between mt-2 space-x-2">
+                  <button
+                    className="bg-transparent rounded-full"
+                    onClick={() => toggleEdit(index)}>
+                    {slice.editing ? (
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        className="w-4 h-4">
+                        <path d="m18 5-3-3H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
+                        <path d="M8 18h1" />
+                        <path d="M18.4 9.6a2 2 0 1 1 3 3L17 17l-4 1 1-4Z" />
+                      </svg>
+                    )}
+                  </button>
+                  {slice.editing && (
+                    <button
+                      // className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out flex items-center hover:shadow-lg"
+                      className="bg-transparent rounded-full bg-green-500 hover:bg-green-700  transition duration-200 ease-in-out flex items-center hover:shadow-lg"
+                      onClick={() => saveNotes(index)}>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
