@@ -9,6 +9,7 @@ export type RequestBody = {
 
 export type RequestResponse = {
   tabId: number
+  tabTitle: string
   videoURL: string
   video: VideoInfo
 }
@@ -30,6 +31,7 @@ const handler: PlasmoMessaging.MessageHandler<
 > = async (req, res) => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var currentTabId = tabs[0].id
+    tabs[0].title
     chrome.scripting
       .executeScript({
         target: { tabId: currentTabId },
@@ -38,6 +40,7 @@ const handler: PlasmoMessaging.MessageHandler<
       .then((resp) => {
         res.send({
           tabId: currentTabId,
+          tabTitle: tabs[0].title,
           videoURL: tabs[0].url,
           video: resp[0].result
         })

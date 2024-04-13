@@ -10,3 +10,10 @@ export type VideoSlice = {
   endTimeInput: string
   isPlaying: boolean
 }
+
+export type VideoResult = {
+  tabId: number
+  tabTitle: string
+  videoURL: string
+  video: VideoInfo
+}

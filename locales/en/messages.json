@@ -42,5 +42,29 @@
   "title": {
     "message": "Video Notes",
     "description": "title"
+  },
+  "home": {
+    "message": "Home",
+    "description": "Home"
+  },
+  "history": {
+    "message": "History",
+    "description": "History"
+  },
+  "videoName": {
+    "message": "Video Name",
+    "description": "video name"
+  },
+  "hintTitle": {
+    "message": "Click to Switch this tab",
+    "description": "click to switch"
+  },
+  "reload": {
+    "message": "reload",
+    "description": "reload"
+  },
+  "popupHint": {
+    "message": " Please open the extension in brower sidepanel",
+    "description": "popup hint"
   }
 }

@@ -42,5 +42,29 @@
   "title": {
     "message": "视频笔记",
     "description": "title"
+  },
+  "home": {
+    "message": "主页",
+    "description": "主页"
+  },
+  "history": {
+    "message": "历史",
+    "description": "history"
+  },
+  "videoName": {
+    "message": "视频名称",
+    "description": "video name"
+  },
+  "hintTitle": {
+    "message": "点击切换到这个标签页",
+    "description": "click to switch"
+  },
+  "reload": {
+    "message": "重新加载",
+    "description": "reload"
+  },
+  "popupHint": {
+    "message": "请从浏览器侧边栏打开应用",
+    "description": "popup hint"
   }
 }
