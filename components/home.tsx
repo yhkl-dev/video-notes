@@ -104,9 +104,11 @@ export default function Home({
       endTime: endTimeInSeconds,
       startTimeInput: `${startHour}:${startMinute}:${startSecond}`,
       endTimeInput: `${endHour}:${endMinute}:${endSecond}`,
-      isPlaying: false
+      isPlaying: false,
+      note: "",
+      editing: false
     }
-    const updatedSlices = [...videoSlices, newSlice]
+    const updatedSlices: VideoSlice[] = [...videoSlices, newSlice]
     setVideoSlices(updatedSlices)
     await localstorage.set(currentVideo.videoURL, updatedSlices)
   }

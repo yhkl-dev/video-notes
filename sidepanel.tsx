@@ -13,7 +13,15 @@ const localstorage = new Storage()
 
 function Popup() {
   const [activeTab, setActiveTab] = useState("tab1")
-  const [currentVideo, setCurrentVideo] = useState<VideoResult>({})
+  const [currentVideo, setCurrentVideo] = useState<VideoResult>({
+    tabId: 0,
+    tabTitle: "",
+    videoURL: "",
+    video: {
+      url: "",
+      duration: 0
+    }
+  })
 
   const setToLocalStorage = async (res: VideoResult) => {
     const existingVideos: VideoResult[] = await localstorage.get("videoInfos")
