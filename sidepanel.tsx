@@ -38,7 +38,9 @@ function Popup() {
       name: "get-video-info"
     }).then((res) => {
       setCurrentVideo(res)
-      setToLocalStorage(res)
+      if (res.video) {
+        setToLocalStorage(res)
+      }
     })
   }
 
