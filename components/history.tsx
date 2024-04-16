@@ -17,29 +17,41 @@ export default function History({ setCurrentVideo, setActiveTab }) {
     await localstorage.set("videoInfos", updatedVideos)
   }
 
-  const handleClick = async (e: any, existingVideo: VideoResult) => {
+  const createNewTab = async (existingVideo: VideoResult) => {
+    const newTab = await chrome.tabs.create({
+      url: existingVideo.videoURL
+    })
+    const updatedVideo = { ...existingVideo, tabId: newTab.id }
+    const updatedVideos = existingVideos.map((video) =>
+      video.videoURL === existingVideo.videoURL ? updatedVideo : video
+    )
+    setExistingVideos(updatedVideos)
+    localstorage.set("videoInfos", updatedVideos)
+    setCurrentVideo(updatedVideo)
+    setActiveTab("tab1")
+  }
+
+  const handleClick = async (
+    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    existingVideo: VideoResult
+  ) => {
+    console.log("handle click ....")
     e.preventDefault()
     try {
-      await chrome.tabs.update(existingVideo.tabId, {
-        active: true
+      const currentTabs = await chrome.tabs.query({
+        title: existingVideo.tabTitle
       })
-      setCurrentVideo(existingVideo)
-      setActiveTab("tab1")
+      if (currentTabs.length === 0) {
+        await createNewTab(existingVideo)
+      } else {
+        await chrome.tabs.update(existingVideo.tabId, {
+          active: true
+        })
+        setCurrentVideo(existingVideo)
+        setActiveTab("tab1")
+      }
     } catch (e) {
-      chrome.tabs
-        .create({
-          url: existingVideo.videoURL
-        })
-        .then((newTab) => {
-          const updatedVideo = { ...existingVideo, tabId: newTab.id }
-          const updatedVideos = existingVideos.map((video) =>
-            video.videoURL === existingVideo.videoURL ? updatedVideo : video
-          )
-          setExistingVideos(updatedVideos)
-          localstorage.set("videoInfos", updatedVideos)
-          setCurrentVideo(updatedVideo)
-          setActiveTab("tab1")
-        })
+      await createNewTab(existingVideo)
     }
   }
 
