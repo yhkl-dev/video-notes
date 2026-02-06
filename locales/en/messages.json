@@ -66,5 +66,21 @@
   "popupHint": {
     "message": " Please open the extension in brower sidepanel",
     "description": "popup hint"
+  },
+  "errorStartGreaterThanEnd": {
+    "message": "Start time cannot be greater than end time",
+    "description": "error message when start time > end time"
+  },
+  "errorTimeExceedsDuration": {
+    "message": "Start time or end time cannot exceed video duration",
+    "description": "error message when time exceeds video duration"
+  },
+  "successSegmentAdded": {
+    "message": "Segment added successfully",
+    "description": "success message when segment is added"
+  },
+  "successNotesSaved": {
+    "message": "Notes saved successfully",
+    "description": "success message when notes are saved"
   }
 }

@@ -66,5 +66,21 @@
   "popupHint": {
     "message": "请从浏览器侧边栏打开应用",
     "description": "popup hint"
+  },
+  "errorStartGreaterThanEnd": {
+    "message": "开始时间不能大于结束时间",
+    "description": "error message when start time > end time"
+  },
+  "errorTimeExceedsDuration": {
+    "message": "开始时间或结束时间不能超过视频时长",
+    "description": "error message when time exceeds video duration"
+  },
+  "successSegmentAdded": {
+    "message": "时间段添加成功",
+    "description": "success message when segment is added"
+  },
+  "successNotesSaved": {
+    "message": "笔记保存成功",
+    "description": "success message when notes are saved"
   }
 }
