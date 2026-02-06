@@ -6,7 +6,13 @@ import type { VideoResult } from "~types"
 
 const localstorage = new Storage()
 
-export default function History({ setCurrentVideo, setActiveTab }) {
+export default function History({
+  setCurrentVideo,
+  setActiveTab
+}: {
+  setCurrentVideo: (video: VideoResult) => void
+  setActiveTab: (tab: string) => void
+}) {
   const [existingVideos, setExistingVideos] = useState([])
 
   const handleDelete = async (videoToDelete: VideoResult) => {
@@ -71,7 +77,7 @@ export default function History({ setCurrentVideo, setActiveTab }) {
           existingVideos.map((existingVideo, index) => (
             <li
               key={index}
-              className="flex bg-gray-50 p-3 mb-2 hover:bg-gray-100 justify-between items-centerrounded-lg transition-colors duration-150 cursor-pointer">
+              className="flex bg-gray-50 p-3 mb-2 hover:bg-gray-100 justify-between items-center rounded-lg transition-colors duration-150 cursor-pointer">
               <a
                 href={existingVideo.videoURL}
                 className="text-blue-500 hover:text-blue-700"
@@ -92,9 +98,9 @@ export default function History({ setCurrentVideo, setActiveTab }) {
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="lucide lucide-circle-x w-4 h-4">
                   <circle cx="12" cy="12" r="10" />
                   <path d="m15 9-6 6" />

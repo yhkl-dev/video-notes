@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
@@ -33,7 +33,7 @@ function Popup() {
     }
   }
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     sendToBackground({
       name: "get-video-info"
     }).then((res) => {
@@ -42,7 +42,7 @@ function Popup() {
         setToLocalStorage(res)
       }
     })
-  }
+  }, [])
 
   useEffect(() => {
     refresh()

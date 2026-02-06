@@ -2,7 +2,7 @@ import clearIconBase64 from "data-base64:~assets/clear.png"
 import pauseIconBase64 from "data-base64:~assets/pause.png"
 import playIconBase64 from "data-base64:~assets/play.png"
 import resetIconBase64 from "data-base64:~assets/reset.png"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
@@ -16,7 +16,7 @@ export default function Home({
   refresh
 }: {
   currentVideo: VideoResult
-  refresh: any
+  refresh: () => void
 }) {
   const [startHour, setStartHour] = useState<string>("00")
   const [startMinute, setStartMinute] = useState<string>("00")
@@ -29,18 +29,21 @@ export default function Home({
   const timeToSeconds = (hours: string, minutes: string, seconds: string) => {
     return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds)
   }
-  const generateOptions = (range: number) => {
-    const options = []
-    for (let i = 0; i < range; i++) {
-      const value = i.toString().padStart(2, "0")
-      options.push(
-        <option key={i} value={value}>
-          {value}
-        </option>
-      )
+
+  const generateOptions = useMemo(() => {
+    return (range: number) => {
+      const options = []
+      for (let i = 0; i < range; i++) {
+        const value = i.toString().padStart(2, "0")
+        options.push(
+          <option key={i} value={value}>
+            {value}
+          </option>
+        )
+      }
+      return options
     }
-    return options
-  }
+  }, [])
 
   const handleNoteChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>,
@@ -89,14 +92,14 @@ export default function Home({
     )
     const endTimeInSeconds = timeToSeconds(endHour, endMinute, endSecond)
     if (startTimeInSeconds > endTimeInSeconds) {
-      alert("start time cannot greater than end time")
+      console.error("Start time greater than end time")
       return
     }
     if (
       startTimeInSeconds > currentVideo.video.duration ||
       endTimeInSeconds > currentVideo.video.duration
     ) {
-      alert("start time or end time cannot greater than video duration")
+      console.error("Time exceeds video duration")
       return
     }
     const newSlice = {
@@ -202,9 +205,9 @@ export default function Home({
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="lucide lucide-rotate-ccw w-4 h-4 inline-block mr-2">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
               <path d="M3 3v5h5" />
@@ -241,9 +244,9 @@ export default function Home({
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="lucide lucide-rotate-ccw w-4 h-4 inline-block mr-2">
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                 <path d="M3 3v5h5" />
@@ -411,9 +414,9 @@ export default function Home({
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                         className="w-4 h-4">
                         <path d="m18 5-3-3H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
                         <path d="M8 18h1" />

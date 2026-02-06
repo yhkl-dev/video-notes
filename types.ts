@@ -17,5 +17,5 @@ export type VideoResult = {
   tabId: number
   tabTitle: string
   videoURL: string
-  video: VideoInfo
+  video: VideoInfo | null
 }
