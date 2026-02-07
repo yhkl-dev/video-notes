@@ -8,6 +8,7 @@ import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
 import type { VideoResult, VideoSlice } from "~types"
+import { useToast } from "~components/toast"
 
 const localstorage = new Storage()
 
@@ -24,10 +25,129 @@ export default function Home({
   const [endHour, setEndHour] = useState<string>("00")
   const [endMinute, setEndMinute] = useState<string>("00")
   const [endSecond, setEndSecond] = useState<string>("00")
+  const [startTimeInput, setStartTimeInput] = useState<string>("00:00")
+  const [endTimeInput, setEndTimeInput] = useState<string>("00:00")
   const [videoSlices, setVideoSlices] = useState<VideoSlice[]>([])
+  const { addToast } = useToast()
 
   const timeToSeconds = (hours: string, minutes: string, seconds: string) => {
     return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds)
+  }
+
+  const pad2 = (value: number) => value.toString().padStart(2, "0")
+
+  const secondsToTimeParts = (totalSeconds: number) => {
+    const safeSeconds = Math.max(0, Math.floor(totalSeconds))
+    const hours = Math.floor(safeSeconds / 3600)
+    const minutes = Math.floor((safeSeconds % 3600) / 60)
+    const seconds = safeSeconds % 60
+    return { hours, minutes, seconds }
+  }
+
+  const formatTimeInput = (totalSeconds: number) => {
+    const { hours, minutes, seconds } = secondsToTimeParts(totalSeconds)
+    if (hours > 0) {
+      return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`
+    }
+    return `${pad2(minutes)}:${pad2(seconds)}`
+  }
+
+  const parseTimeInput = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+    const parts = trimmed.split(":")
+    if (parts.length !== 2 && parts.length !== 3) return null
+
+    const numbers = parts.map((part) => Number(part))
+    if (numbers.some((num) => Number.isNaN(num) || num < 0)) return null
+
+    if (parts.length === 2) {
+      const [minutes, seconds] = numbers
+      if (seconds >= 60) return null
+      return minutes * 60 + seconds
+    }
+
+    const [hours, minutes, seconds] = numbers
+    if (minutes >= 60 || seconds >= 60) return null
+    return hours * 3600 + minutes * 60 + seconds
+  }
+
+  const updateStartFromParts = (
+    hours: string,
+    minutes: string,
+    seconds: string
+  ) => {
+    setStartHour(hours)
+    setStartMinute(minutes)
+    setStartSecond(seconds)
+    setStartTimeInput(formatTimeInput(timeToSeconds(hours, minutes, seconds)))
+  }
+
+  const updateEndFromParts = (
+    hours: string,
+    minutes: string,
+    seconds: string
+  ) => {
+    setEndHour(hours)
+    setEndMinute(minutes)
+    setEndSecond(seconds)
+    setEndTimeInput(formatTimeInput(timeToSeconds(hours, minutes, seconds)))
+  }
+
+  const setStartFromSeconds = (seconds: number) => {
+    const { hours, minutes, seconds: secs } = secondsToTimeParts(seconds)
+    updateStartFromParts(pad2(hours), pad2(minutes), pad2(secs))
+  }
+
+  const setEndFromSeconds = (seconds: number) => {
+    const { hours, minutes, seconds: secs } = secondsToTimeParts(seconds)
+    updateEndFromParts(pad2(hours), pad2(minutes), pad2(secs))
+  }
+
+  const applyStartTimeInput = () => {
+    const seconds = parseTimeInput(startTimeInput)
+    if (seconds === null) {
+      addToast(
+        chrome.i18n.getMessage("errorInvalidTimeFormat"),
+        "error"
+      )
+      return
+    }
+    setStartFromSeconds(seconds)
+  }
+
+  const applyEndTimeInput = () => {
+    const seconds = parseTimeInput(endTimeInput)
+    if (seconds === null) {
+      addToast(
+        chrome.i18n.getMessage("errorInvalidTimeFormat"),
+        "error"
+      )
+      return
+    }
+    setEndFromSeconds(seconds)
+  }
+
+  const setFromCurrentTime = async (target: "start" | "end") => {
+    if (!currentVideo.tabId) return
+    try {
+      const res = await sendToBackground({
+        name: "get-current-time",
+        body: { tabId: currentVideo.tabId }
+      })
+      if (!res || res.currentTime === null || res.currentTime === undefined) {
+        addToast(chrome.i18n.getMessage("errorGetCurrentTime"), "error")
+        return
+      }
+      if (target === "start") {
+        setStartFromSeconds(res.currentTime)
+      } else {
+        setEndFromSeconds(res.currentTime)
+      }
+    } catch (error) {
+      console.error("Failed to get current time", error)
+      addToast(chrome.i18n.getMessage("errorGetCurrentTime"), "error")
+    }
   }
 
   const generateOptions = useMemo(() => {
@@ -82,6 +202,7 @@ export default function Home({
       localstorage.set(currentVideo.videoURL, updatedSlices)
       return updatedSlices
     })
+    addToast(chrome.i18n.getMessage("successNotesSaved"), "success")
   }
 
   const addSlice = async () => {
@@ -92,14 +213,20 @@ export default function Home({
     )
     const endTimeInSeconds = timeToSeconds(endHour, endMinute, endSecond)
     if (startTimeInSeconds > endTimeInSeconds) {
-      console.error("Start time greater than end time")
+      addToast(
+        chrome.i18n.getMessage("errorStartGreaterThanEnd"),
+        "error"
+      )
       return
     }
     if (
       startTimeInSeconds > currentVideo.video.duration ||
       endTimeInSeconds > currentVideo.video.duration
     ) {
-      console.error("Time exceeds video duration")
+      addToast(
+        chrome.i18n.getMessage("errorTimeExceedsDuration"),
+        "error"
+      )
       return
     }
     const newSlice = {
@@ -114,6 +241,7 @@ export default function Home({
     const updatedSlices: VideoSlice[] = [...videoSlices, newSlice]
     setVideoSlices(updatedSlices)
     await localstorage.set(currentVideo.videoURL, updatedSlices)
+    addToast(chrome.i18n.getMessage("successSegmentAdded"), "success")
   }
 
   const handlePlayOrPause = async (slice: VideoSlice, index: number) => {
@@ -280,21 +408,60 @@ export default function Home({
                 <select
                   className="mt-1 pl-1 pr-6 py-1 text-xs border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                   value={startHour}
-                  onChange={(e) => setStartHour(e.target.value)}>
+                  onChange={(e) =>
+                    updateStartFromParts(
+                      e.target.value,
+                      startMinute,
+                      startSecond
+                    )
+                  }>
                   {generateOptions(24)}
                 </select>
                 <select
                   className="mt-1 pl-1 pr-6 py-1 text-xs border-t border-b border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   value={startMinute}
-                  onChange={(e) => setStartMinute(e.target.value)}>
+                  onChange={(e) =>
+                    updateStartFromParts(
+                      startHour,
+                      e.target.value,
+                      startSecond
+                    )
+                  }>
                   {generateOptions(60)}
                 </select>
                 <select
                   className="mt-1 pl-1 pr-6 py-1 text-xs border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                   value={startSecond}
-                  onChange={(e) => setStartSecond(e.target.value)}>
+                  onChange={(e) =>
+                    updateStartFromParts(
+                      startHour,
+                      startMinute,
+                      e.target.value
+                    )
+                  }>
                   {generateOptions(60)}
                 </select>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="text"
+                  className="w-24 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder={chrome.i18n.getMessage("timeInputPlaceholder")}
+                  value={startTimeInput}
+                  onChange={(e) => setStartTimeInput(e.target.value)}
+                  onBlur={applyStartTimeInput}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      applyStartTimeInput()
+                    }
+                  }}
+                />
+                <button
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                  onClick={() => setFromCurrentTime("start")}
+                  type="button">
+                  {chrome.i18n.getMessage("setStartNow")}
+                </button>
               </div>
             </div>
             <div>
@@ -305,21 +472,99 @@ export default function Home({
                 <select
                   className="mt-1 pl-1 pr-6 py-1 text-xs border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                   value={endHour}
-                  onChange={(e) => setEndHour(e.target.value)}>
+                  onChange={(e) =>
+                    updateEndFromParts(e.target.value, endMinute, endSecond)
+                  }>
                   {generateOptions(24)}
                 </select>
                 <select
                   className="mt-1 pl-1 pr-6 py-1 text-xs border-t border-b border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   value={endMinute}
-                  onChange={(e) => setEndMinute(e.target.value)}>
+                  onChange={(e) =>
+                    updateEndFromParts(endHour, e.target.value, endSecond)
+                  }>
                   {generateOptions(60)}
                 </select>
                 <select
                   className="mt-1 pl-1 pr-6 py-1 text-xs border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                   value={endSecond}
-                  onChange={(e) => setEndSecond(e.target.value)}>
+                  onChange={(e) =>
+                    updateEndFromParts(endHour, endMinute, e.target.value)
+                  }>
                   {generateOptions(60)}
                 </select>
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="text"
+                  className="w-24 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder={chrome.i18n.getMessage("timeInputPlaceholder")}
+                  value={endTimeInput}
+                  onChange={(e) => setEndTimeInput(e.target.value)}
+                  onBlur={applyEndTimeInput}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      applyEndTimeInput()
+                    }
+                  }}
+                />
+                <button
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                  onClick={() => setFromCurrentTime("end")}
+                  type="button">
+                  {chrome.i18n.getMessage("setEndNow")}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-gray-700 mb-2">
+              {chrome.i18n.getMessage("timeRange")}
+            </label>
+            <div className="flex flex-col gap-2">
+              <input
+                type="range"
+                min={0}
+                max={Math.floor(currentVideo.video.duration || 0)}
+                value={Math.min(
+                  timeToSeconds(startHour, startMinute, startSecond),
+                  timeToSeconds(endHour, endMinute, endSecond)
+                )}
+                onChange={(e) => {
+                  const nextValue = Number(e.target.value)
+                  const endValue = timeToSeconds(endHour, endMinute, endSecond)
+                  setStartFromSeconds(Math.min(nextValue, endValue))
+                }}
+              />
+              <input
+                type="range"
+                min={0}
+                max={Math.floor(currentVideo.video.duration || 0)}
+                value={Math.max(
+                  timeToSeconds(startHour, startMinute, startSecond),
+                  timeToSeconds(endHour, endMinute, endSecond)
+                )}
+                onChange={(e) => {
+                  const nextValue = Number(e.target.value)
+                  const startValue = timeToSeconds(
+                    startHour,
+                    startMinute,
+                    startSecond
+                  )
+                  setEndFromSeconds(Math.max(nextValue, startValue))
+                }}
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>
+                  {formatTimeInput(
+                    timeToSeconds(startHour, startMinute, startSecond)
+                  )}
+                </span>
+                <span>
+                  {formatTimeInput(
+                    timeToSeconds(endHour, endMinute, endSecond)
+                  )}
+                </span>
               </div>
             </div>
           </div>

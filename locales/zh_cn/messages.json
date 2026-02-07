@@ -67,6 +67,30 @@
     "message": "请从浏览器侧边栏打开应用",
     "description": "popup hint"
   },
+  "timeInputPlaceholder": {
+    "message": "MM:SS 或 HH:MM:SS",
+    "description": "time input placeholder"
+  },
+  "setStartNow": {
+    "message": "设为当前开始",
+    "description": "button to set start time to current playback time"
+  },
+  "setEndNow": {
+    "message": "设为当前结束",
+    "description": "button to set end time to current playback time"
+  },
+  "timeRange": {
+    "message": "拖拽选择时间段",
+    "description": "label for time range slider"
+  },
+  "errorInvalidTimeFormat": {
+    "message": "时间格式不正确，请用 MM:SS 或 HH:MM:SS",
+    "description": "error message when time input format is invalid"
+  },
+  "errorGetCurrentTime": {
+    "message": "无法获取当前播放时间，请确认页面有视频播放。",
+    "description": "error message when current time cannot be retrieved"
+  },
   "errorStartGreaterThanEnd": {
     "message": "开始时间不能大于结束时间",
     "description": "error message when start time > end time"
