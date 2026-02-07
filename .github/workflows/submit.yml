@@ -1,0 +1,42 @@
+name: "Submit to Web Store (Manual)"
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm store prune && pnpm install
+
+      - name: Build the extension
+        run: pnpm build
+
+      - name: Package the extension into a zip artifact
+        run: pnpm package
+
+      - name: Verify package
+        run: |
+          if [ ! -f build/chrome-mv3-prod.zip ]; then
+            echo "❌ Failed to create package"
+            exit 1
+          fi
+          echo "✅ Package size: $(du -h build/chrome-mv3-prod.zip | cut -f1)"
+
+      - name: Browser Platform Publish
+        uses: PlasmoHQ/bpp@v3
+        with:
+          keys: ${{ secrets.SUBMIT_KEYS }}
+          artifact: build/chrome-mv3-prod.zip

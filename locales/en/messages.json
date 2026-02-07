@@ -67,6 +67,18 @@
     "message": " Please open the extension in brower sidepanel",
     "description": "popup hint"
   },
+  "timeInputPlaceholder": {
+    "message": "MM:SS or HH:MM:SS",
+    "description": "placeholder for time input"
+  },
+  "timeRange": {
+    "message": "Drag to Select Range",
+    "description": "label for time range slider"
+  },
+  "errorInvalidTimeFormat": {
+    "message": "Invalid time format. Use MM:SS or HH:MM:SS",
+    "description": "error message when time input format is invalid"
+  },
   "errorStartGreaterThanEnd": {
     "message": "Start time cannot be greater than end time",
     "description": "error message when start time > end time"
