@@ -71,14 +71,6 @@
     "message": "MM:SS or HH:MM:SS",
     "description": "placeholder for time input"
   },
-  "setStartNow": {
-    "message": "Set Start to Current",
-    "description": "button to set start time to current playback time"
-  },
-  "setEndNow": {
-    "message": "Set End to Current",
-    "description": "button to set end time to current playback time"
-  },
   "timeRange": {
     "message": "Drag to Select Range",
     "description": "label for time range slider"
@@ -86,10 +78,6 @@
   "errorInvalidTimeFormat": {
     "message": "Invalid time format. Use MM:SS or HH:MM:SS",
     "description": "error message when time input format is invalid"
-  },
-  "errorGetCurrentTime": {
-    "message": "Unable to read current playback time. Make sure a video is playing.",
-    "description": "error message when current time cannot be retrieved"
   },
   "errorStartGreaterThanEnd": {
     "message": "Start time cannot be greater than end time",

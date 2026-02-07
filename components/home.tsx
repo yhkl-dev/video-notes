@@ -128,28 +128,6 @@ export default function Home({
     setEndFromSeconds(seconds)
   }
 
-  const setFromCurrentTime = async (target: "start" | "end") => {
-    if (!currentVideo.tabId) return
-    try {
-      const res = await sendToBackground({
-        name: "get-current-time",
-        body: { tabId: currentVideo.tabId }
-      })
-      if (!res || res.currentTime === null || res.currentTime === undefined) {
-        addToast(chrome.i18n.getMessage("errorGetCurrentTime"), "error")
-        return
-      }
-      if (target === "start") {
-        setStartFromSeconds(res.currentTime)
-      } else {
-        setEndFromSeconds(res.currentTime)
-      }
-    } catch (error) {
-      console.error("Failed to get current time", error)
-      addToast(chrome.i18n.getMessage("errorGetCurrentTime"), "error")
-    }
-  }
-
   const generateOptions = useMemo(() => {
     return (range: number) => {
       const options = []
@@ -456,12 +434,6 @@ export default function Home({
                     }
                   }}
                 />
-                <button
-                  className="text-xs text-blue-600 hover:text-blue-800"
-                  onClick={() => setFromCurrentTime("start")}
-                  type="button">
-                  {chrome.i18n.getMessage("setStartNow")}
-                </button>
               </div>
             </div>
             <div>
@@ -508,12 +480,6 @@ export default function Home({
                     }
                   }}
                 />
-                <button
-                  className="text-xs text-blue-600 hover:text-blue-800"
-                  onClick={() => setFromCurrentTime("end")}
-                  type="button">
-                  {chrome.i18n.getMessage("setEndNow")}
-                </button>
               </div>
             </div>
           </div>

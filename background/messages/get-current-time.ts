@@ -1,7 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 export type RequestBody = {
-  tabId: number
+  tabId?: number
 }
 
 export type RequestResponse = {
@@ -29,22 +29,36 @@ const handler: PlasmoMessaging.MessageHandler<
     }
 
     const result = await chrome.scripting.executeScript({
-      target: { tabId },
+      target: { tabId, allFrames: true },
       func: () => {
-        const video = document.querySelector("video") as
-          | HTMLVideoElement
-          | null
-        if (!video) {
-          return { currentTime: null, duration: null }
+        const videos = Array.from(
+          document.querySelectorAll("video")
+        ) as HTMLVideoElement[]
+
+        if (!videos.length) {
+          return null
         }
+
+        const preferred =
+          videos.find((video) =>
+            Number.isFinite(video.duration) && video.duration > 0
+          ) ?? videos[0]
+
         return {
-          currentTime: video.currentTime,
-          duration: video.duration
+          currentTime: preferred.currentTime,
+          duration: preferred.duration
         }
       }
     })
 
-    res.send(result?.[0]?.result ?? { currentTime: null, duration: null })
+    const match = result
+      ?.map((item) => item.result)
+      ?.find(
+        (item) =>
+          item && item.currentTime !== null && item.duration !== null
+      )
+
+    res.send(match ?? { currentTime: null, duration: null })
   } catch (error) {
     console.error("Failed to get current time", error)
     res.send({ currentTime: null, duration: null })
