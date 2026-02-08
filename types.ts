@@ -4,6 +4,8 @@ export type VideoInfo = {
 }
 
 export type VideoSlice = {
+  id: string
+  createdAt: number
   startTime: number
   endTime: number
   startTimeInput: string
@@ -11,6 +13,7 @@ export type VideoSlice = {
   isPlaying: boolean
   note: string
   editing: boolean
+  tags: string[]
 }
 
 export type VideoResult = {

@@ -75,6 +75,98 @@
     "message": "Drag to Select Range",
     "description": "label for time range slider"
   },
+  "searchPlaceholder": {
+    "message": "Search slices...",
+    "description": "search input placeholder"
+  },
+  "tagFilterPlaceholder": {
+    "message": "Filter by tag...",
+    "description": "tag filter input placeholder"
+  },
+  "tip": {
+    "message": "Tip",
+    "description": "tip label"
+  },
+  "searchHint": {
+    "message": "Search notes, time ranges, or tags",
+    "description": "hint text under search controls"
+  },
+  "sortCreatedDesc": {
+    "message": "Newest",
+    "description": "sort by created time desc"
+  },
+  "sortCreatedAsc": {
+    "message": "Oldest",
+    "description": "sort by created time asc"
+  },
+  "sortStartAsc": {
+    "message": "Start ↑",
+    "description": "sort by start time asc"
+  },
+  "sortStartDesc": {
+    "message": "Start ↓",
+    "description": "sort by start time desc"
+  },
+  "sortEndAsc": {
+    "message": "End ↑",
+    "description": "sort by end time asc"
+  },
+  "sortCustom": {
+    "message": "Custom order",
+    "description": "sort by manual drag order"
+  },
+  "sortEndDesc": {
+    "message": "End ↓",
+    "description": "sort by end time desc"
+  },
+  "selectAll": {
+    "message": "Select all",
+    "description": "select all visible slices"
+  },
+  "clearSelection": {
+    "message": "Clear selection",
+    "description": "clear selected slices"
+  },
+  "selectedCount": {
+    "message": "Selected: {count}",
+    "description": "selected slice count"
+  },
+  "deleteSelected": {
+    "message": "Delete selected",
+    "description": "batch delete slices"
+  },
+  "exportSelected": {
+    "message": "Export selected",
+    "description": "batch export slices"
+  },
+  "mergeSelected": {
+    "message": "Merge selected",
+    "description": "merge selected slices"
+  },
+  "tagsPlaceholder": {
+    "message": "Tags (comma separated)",
+    "description": "tags input placeholder"
+  },
+  "errorNoSelection": {
+    "message": "Please select at least one slice",
+    "description": "error when no slices selected"
+  },
+  "errorMergeNeedTwo": {
+    "message": "Select at least two slices to merge",
+    "description": "error when merge selection is insufficient"
+  },
+  "successDeleted": {
+    "message": "Selected slices deleted",
+    "description": "success message for delete"
+  },
+  "successExported": {
+    "message": "Selected slices exported",
+    "description": "success message for export"
+  },
+  "successMerged": {
+    "message": "Slices merged successfully",
+    "description": "success message for merge"
+  },
   "errorInvalidTimeFormat": {
     "message": "Invalid time format. Use MM:SS or HH:MM:SS",
     "description": "error message when time input format is invalid"
