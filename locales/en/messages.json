@@ -91,6 +91,50 @@
     "message": "Search notes, time ranges, or tags",
     "description": "hint text under search controls"
   },
+  "noteToolbar": {
+    "message": "Markdown toolbar",
+    "description": "label for markdown toolbar buttons"
+  },
+  "boldLabel": {
+    "message": "Bold",
+    "description": "insert bold markdown"
+  },
+  "italicLabel": {
+    "message": "Italic",
+    "description": "insert italic markdown"
+  },
+  "codeLabel": {
+    "message": "Code",
+    "description": "insert code block"
+  },
+  "insertImage": {
+    "message": "Image",
+    "description": "insert image markdown"
+  },
+  "templateLabel": {
+    "message": "Templates",
+    "description": "template dropdown placeholder"
+  },
+  "templateSummary": {
+    "message": "Summary template",
+    "description": "template label"
+  },
+  "templateActionItems": {
+    "message": "Action items",
+    "description": "template label"
+  },
+  "templateMeetingNotes": {
+    "message": "Meeting notes",
+    "description": "template label"
+  },
+  "promptImageUrl": {
+    "message": "Enter image URL",
+    "description": "prompt text for image insertion"
+  },
+  "noNotes": {
+    "message": "No notes",
+    "description": "placeholder when no notes"
+  },
   "sortCreatedDesc": {
     "message": "Newest",
     "description": "sort by created time desc"
