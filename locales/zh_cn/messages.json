@@ -75,6 +75,98 @@
     "message": "拖拽选择时间段",
     "description": "label for time range slider"
   },
+  "searchPlaceholder": {
+    "message": "搜索片段...",
+    "description": "search input placeholder"
+  },
+  "tagFilterPlaceholder": {
+    "message": "按标签过滤...",
+    "description": "tag filter input placeholder"
+  },
+  "tip": {
+    "message": "提示",
+    "description": "tip label"
+  },
+  "searchHint": {
+    "message": "可搜索笔记、时间段或标签",
+    "description": "hint text under search controls"
+  },
+  "sortCreatedDesc": {
+    "message": "最新",
+    "description": "sort by created time desc"
+  },
+  "sortCreatedAsc": {
+    "message": "最早",
+    "description": "sort by created time asc"
+  },
+  "sortStartAsc": {
+    "message": "开始 ↑",
+    "description": "sort by start time asc"
+  },
+  "sortStartDesc": {
+    "message": "开始 ↓",
+    "description": "sort by start time desc"
+  },
+  "sortEndAsc": {
+    "message": "结束 ↑",
+    "description": "sort by end time asc"
+  },
+  "sortCustom": {
+    "message": "自定义排序",
+    "description": "sort by manual drag order"
+  },
+  "sortEndDesc": {
+    "message": "结束 ↓",
+    "description": "sort by end time desc"
+  },
+  "selectAll": {
+    "message": "全选",
+    "description": "select all visible slices"
+  },
+  "clearSelection": {
+    "message": "清除选择",
+    "description": "clear selected slices"
+  },
+  "selectedCount": {
+    "message": "已选：{count}",
+    "description": "selected slice count"
+  },
+  "deleteSelected": {
+    "message": "删除已选",
+    "description": "batch delete slices"
+  },
+  "exportSelected": {
+    "message": "导出已选",
+    "description": "batch export slices"
+  },
+  "mergeSelected": {
+    "message": "合并已选",
+    "description": "merge selected slices"
+  },
+  "tagsPlaceholder": {
+    "message": "标签（逗号分隔）",
+    "description": "tags input placeholder"
+  },
+  "errorNoSelection": {
+    "message": "请至少选择一个片段",
+    "description": "error when no slices selected"
+  },
+  "errorMergeNeedTwo": {
+    "message": "请至少选择两个片段进行合并",
+    "description": "error when merge selection is insufficient"
+  },
+  "successDeleted": {
+    "message": "已删除选中片段",
+    "description": "success message for delete"
+  },
+  "successExported": {
+    "message": "已导出选中片段",
+    "description": "success message for export"
+  },
+  "successMerged": {
+    "message": "片段合并成功",
+    "description": "success message for merge"
+  },
   "errorInvalidTimeFormat": {
     "message": "时间格式不正确，请用 MM:SS 或 HH:MM:SS",
     "description": "error message when time input format is invalid"
