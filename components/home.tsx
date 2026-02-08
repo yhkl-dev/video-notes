@@ -2,7 +2,10 @@ import clearIconBase64 from "data-base64:~assets/clear.png"
 import pauseIconBase64 from "data-base64:~assets/pause.png"
 import playIconBase64 from "data-base64:~assets/play.png"
 import resetIconBase64 from "data-base64:~assets/reset.png"
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
+import type { ChangeEvent, DragEvent } from "react"
+import { marked } from "marked"
+import DOMPurify from "dompurify"
 import type { DragEvent } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
@@ -299,6 +302,48 @@ export default function Home({
     )
   }
 
+  const updateSliceNote = (
+    id: string,
+    updater: (current: string) => string
+  ) => {
+    setVideoSlices((currentSlices) =>
+      currentSlices.map((slice) => {
+        if (slice.id === id) {
+          return { ...slice, note: updater(slice.note || "") }
+        }
+        return slice
+      })
+    )
+  }
+
+  const appendToSliceNote = (id: string, snippet: string) => {
+    updateSliceNote(id, (current) => {
+      const trimmed = current.trim()
+      if (!trimmed) {
+        return snippet
+      }
+      return `${trimmed}\n${snippet}`
+    })
+  }
+
+  const handleInsertTemplate = (
+    event: ChangeEvent<HTMLSelectElement>,
+    id: string
+  ) => {
+    const template = noteTemplates.find((item) => item.key === event.target.value)
+    if (template) {
+      appendToSliceNote(id, template.snippet)
+      event.target.value = ""
+    }
+  }
+
+  const handleInsertImage = (id: string) => {
+    const url = window.prompt(chrome.i18n.getMessage("promptImageUrl"))
+    if (!url) return
+    const snippet = `![Image](${url})`
+    appendToSliceNote(id, snippet)
+  }
+
   const handleBatchDelete = () => {
     if (selectedIds.size === 0) {
       addToast(chrome.i18n.getMessage("errorNoSelection"), "error")
@@ -375,6 +420,29 @@ export default function Home({
 
     clearSelection()
     addToast(chrome.i18n.getMessage("successMerged"), "success")
+  }
+
+  const noteTemplates = [
+    {
+      key: "template-summary",
+      label: chrome.i18n.getMessage("templateSummary"),
+      snippet: "## Summary\n- "
+    },
+    {
+      key: "template-action",
+      label: chrome.i18n.getMessage("templateActionItems"),
+      snippet: "## Action Items\n- [ ] "
+    },
+    {
+      key: "template-meeting",
+      label: chrome.i18n.getMessage("templateMeetingNotes"),
+      snippet:
+        "## Meeting Notes\n**Topic:** \n**Key Takeaways:**\n- \n**Follow-ups:**\n- "
+    }
+  ]
+
+  const renderMarkdown = (text: string) => {
+    return DOMPurify.sanitize(marked(text))
   }
 
   const handleNoteChange = (
@@ -939,14 +1007,69 @@ export default function Home({
                   </div>
                 </div>
                 {slice.editing ? (
-                  <textarea
-                    className="mt-2 p-3 border border-gray-200 rounded-lg shadow-lg transition-shadow duration-300 ease-in-out focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full"
-                    value={slice.note || ""}
-                    onChange={(e) => handleNoteChange(e, slice.id)}
+                  <>
+                    <div className="flex flex-wrap gap-2 text-xs mt-2">
+                      <span className="text-gray-500">
+                        {chrome.i18n.getMessage("noteToolbar")}
+                      </span>
+                      <button
+                        type="button"
+                        className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-200"
+                        onClick={() => appendToSliceNote(slice.id, "**bold text**")}
+                      >
+                        {chrome.i18n.getMessage("boldLabel")}
+                      </button>
+                      <button
+                        type="button"
+                        className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-200"
+                        onClick={() => appendToSliceNote(slice.id, "*italic text*")}
+                      >
+                        {chrome.i18n.getMessage("italicLabel")}
+                      </button>
+                      <button
+                        type="button"
+                        className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-200"
+                        onClick={() =>
+                          appendToSliceNote(slice.id, "```\ncode block\n```")
+                        }
+                      >
+                        {chrome.i18n.getMessage("codeLabel")}
+                      </button>
+                      <button
+                        type="button"
+                        className="px-2 py-1 border border-gray-300 rounded-md hover:bg-gray-200"
+                        onClick={() => handleInsertImage(slice.id)}
+                      >
+                        {chrome.i18n.getMessage("insertImage")}
+                      </button>
+                      <select
+                        className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none"
+                        defaultValue=""
+                        onChange={(event) => handleInsertTemplate(event, slice.id)}>
+                        <option value="" disabled>
+                          {chrome.i18n.getMessage("templateLabel")}
+                        </option>
+                        {noteTemplates.map((template) => (
+                          <option key={template.key} value={template.key}>
+                            {template.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <textarea
+                      className="mt-2 p-3 border border-gray-200 rounded-lg shadow-lg transition-shadow duration-300 ease-in-out focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full"
+                      value={slice.note || ""}
+                      onChange={(e) => handleNoteChange(e, slice.id)}
+                    />
+                  </>
+                ) : slice.note && slice.note.trim() ? (
+                  <div
+                    className="mt-2 p-3 bg-gray-100 rounded-lg shadow markdown-preview text-sm"
+                    dangerouslySetInnerHTML={{ __html: renderMarkdown(slice.note) }}
                   />
                 ) : (
-                  <p className="p-3 bg-gray-100 rounded-lg shadow">
-                    {slice.note || "No notes"}
+                  <p className="p-3 bg-gray-100 rounded-lg shadow text-sm text-gray-500">
+                    {chrome.i18n.getMessage("noNotes")}
                   </p>
                 )}
                 {slice.editing ? (

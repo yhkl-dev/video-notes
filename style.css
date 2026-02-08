@@ -1,3 +1,65 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.markdown-preview {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  margin: 0.5rem 0;
+  font-weight: 600;
+}
+
+.markdown-preview p {
+  margin: 0.25rem 0;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin: 0.25rem 0 0.25rem 1.25rem;
+}
+
+.markdown-preview li {
+  margin: 0.125rem 0;
+}
+
+.markdown-preview img {
+  max-width: 100%;
+  border-radius: 0.35rem;
+  margin: 0.5rem 0;
+}
+
+.markdown-preview pre {
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+}
+
+.markdown-preview code {
+  font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  background-color: #f0f0f0;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.markdown-preview pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.markdown-preview blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  color: #666;
+}

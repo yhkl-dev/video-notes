@@ -91,6 +91,50 @@
     "message": "可搜索笔记、时间段或标签",
     "description": "hint text under search controls"
   },
+  "noteToolbar": {
+    "message": "Markdown 工具栏",
+    "description": "label for markdown toolbar buttons"
+  },
+  "boldLabel": {
+    "message": "加粗",
+    "description": "insert bold markdown"
+  },
+  "italicLabel": {
+    "message": "斜体",
+    "description": "insert italic markdown"
+  },
+  "codeLabel": {
+    "message": "代码块",
+    "description": "insert code block"
+  },
+  "insertImage": {
+    "message": "插入图片",
+    "description": "insert image markdown"
+  },
+  "templateLabel": {
+    "message": "模板",
+    "description": "template dropdown placeholder"
+  },
+  "templateSummary": {
+    "message": "摘要模板",
+    "description": "template label"
+  },
+  "templateActionItems": {
+    "message": "行动项",
+    "description": "template label"
+  },
+  "templateMeetingNotes": {
+    "message": "会议记录",
+    "description": "template label"
+  },
+  "promptImageUrl": {
+    "message": "请输入图片地址",
+    "description": "prompt text for image insertion"
+  },
+  "noNotes": {
+    "message": "暂无笔记",
+    "description": "placeholder when no notes"
+  },
   "sortCreatedDesc": {
     "message": "最新",
     "description": "sort by created time desc"
