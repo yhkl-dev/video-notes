@@ -96,13 +96,3 @@
 .dark .markdown-preview a.timestamp-link:hover {
   color: #93c5fd;
 }
-
-@keyframes pulse-glow {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}

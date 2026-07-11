@@ -433,7 +433,7 @@ export default function Home({
     anchor.href = url
     anchor.download = `video-slices-${Date.now()}.json`
     anchor.click()
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
     addToast(chrome.i18n.getMessage("successExported"), "success")
   }
 
@@ -583,7 +583,7 @@ export default function Home({
     anchor.href = url
     anchor.download = `video-notes-${Date.now()}.md`
     anchor.click()
-    URL.revokeObjectURL(url)
+    setTimeout(() => URL.revokeObjectURL(url), 100)
     addToast(chrome.i18n.getMessage("successExportedMd"), "success")
   }
 
@@ -1255,26 +1255,30 @@ export default function Home({
             </svg>
             {chrome.i18n.getMessage("addTimeSegment")}
           </button>
-          {videoSlices.length > 0 && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                <span>{chrome.i18n.getMessage("coverageStats")}</span>
-                <span>
-                  {chrome.i18n
-                    .getMessage("coverage")
-                    .replace("{percent}", String(computeCoverage().percent))}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-blue-500 h-2 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(computeCoverage().percent, 100)}%`
-                  }}
-                />
-              </div>
-            </div>
-          )}
+          {videoSlices.length > 0 &&
+            (() => {
+              const coverage = computeCoverage()
+              return (
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <span>{chrome.i18n.getMessage("coverageStats")}</span>
+                    <span>
+                      {chrome.i18n
+                        .getMessage("coverage")
+                        .replace("{percent}", String(coverage.percent))}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      className="bg-blue-500 h-2 rounded-full transition-all"
+                      style={{
+                        width: `${Math.min(coverage.percent, 100)}%`
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })()}
         </div>
       )}
       {currentVideo.video && (
@@ -1515,7 +1519,7 @@ export default function Home({
                   sortMode === "custom" ? "cursor-move" : ""
                 } ${dragOverId === slice.id ? "ring-2 ring-blue-400 shadow-md" : ""} ${
                   slice.isPlaying
-                    ? "ring-1 ring-blue-300/50 dark:ring-blue-500/30 shadow-[0_0_12px_rgba(59,130,246,0.15)]"
+                    ? "ring-1 ring-blue-300/50 dark:ring-blue-500/30 shadow-[0_0_12px_rgba(59,130,246,0.15)] animate-pulse"
                     : ""
                 }`}
                 draggable={sortMode === "custom"}

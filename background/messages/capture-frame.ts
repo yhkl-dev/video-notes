@@ -47,10 +47,13 @@ const handler: PlasmoMessaging.MessageHandler<
   }
 
   try {
-    const dataUrl: string = await (chrome.tabs.captureVisibleTab as any)(null, {
-      format: "jpeg",
-      quality: 30
-    })
+    const dataUrl: string = await (chrome.tabs.captureVisibleTab as any)(
+      undefined,
+      {
+        format: "jpeg",
+        quality: 30
+      }
+    )
     res.send({ dataUrl })
   } catch {
     res.send({ dataUrl: null })
