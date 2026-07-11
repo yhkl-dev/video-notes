@@ -1,3 +1,4 @@
+import { hashTag } from "~components/utils"
 import type { VideoSlice } from "~types"
 
 const COLORS = [
@@ -9,17 +10,8 @@ const COLORS = [
   "bg-teal-300/60 dark:bg-teal-500/40"
 ]
 
-function hashTag(tag: string): number {
-  let hash = 0
-  for (let i = 0; i < tag.length; i++) {
-    hash = (hash * 31 + tag.charCodeAt(i)) & 0xffffffff
-  }
-  return hash
-}
-
 function getColor(slice: VideoSlice): string {
-  const idx =
-    Math.abs(hashTag(slice.tags?.[0] || slice.id)) % COLORS.length
+  const idx = Math.abs(hashTag(slice.tags?.[0] || slice.id)) % COLORS.length
   return COLORS[idx]
 }
 
@@ -46,8 +38,7 @@ export default function TimelineBar({
 }) {
   const dur = duration || 1
   const selLeft = (Math.min(startSeconds, endSeconds) / dur) * 100
-  const selWidth =
-    (Math.abs(endSeconds - startSeconds) / dur) * 100
+  const selWidth = (Math.abs(endSeconds - startSeconds) / dur) * 100
 
   return (
     <div className="mb-4">

@@ -11,36 +11,22 @@ import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
 import CoverageBar from "~components/coverage-bar"
+import NoteToolbar from "~components/note-toolbar"
 import ShortcutsModal from "~components/shortcuts-modal"
 import TimelineBar from "~components/timeline-bar"
 import { useToast } from "~components/toast"
+import {
+  createId,
+  formatDuration,
+  formatTimeInput,
+  getTagBorderColor,
+  normalizeSlice,
+  pad2,
+  parseTimeInput,
+  secondsToTimeParts,
+  timeToSeconds
+} from "~components/utils"
 import type { VideoResult, VideoSlice } from "~types"
-
-const TAG_COLORS = [
-  "border-l-red-400",
-  "border-l-blue-400",
-  "border-l-green-400",
-  "border-l-yellow-400",
-  "border-l-purple-400",
-  "border-l-pink-400",
-  "border-l-indigo-400",
-  "border-l-teal-400"
-]
-
-function hashTag(tag: string): number {
-  let hash = 0
-  for (let i = 0; i < tag.length; i++) {
-    hash = (hash * 31 + tag.charCodeAt(i)) & 0xffffffff
-  }
-  return hash
-}
-
-function getTagBorderColor(tags: string[]): string {
-  if (!tags || tags.length === 0)
-    return "border-l-gray-300 dark:border-l-gray-600"
-  const idx = Math.abs(hashTag(tags[0])) % TAG_COLORS.length
-  return TAG_COLORS[idx]
-}
 
 const localstorage = new Storage()
 
@@ -85,73 +71,6 @@ export default function Home({
     redo: () => {},
     handlePlayOrPause: () => {}
   })
-
-  const timeToSeconds = (hours: string, minutes: string, seconds: string) => {
-    return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds)
-  }
-
-  const pad2 = (value: number) => value.toString().padStart(2, "0")
-
-  const createId = () =>
-    `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-
-  const secondsToTimeParts = (totalSeconds: number) => {
-    const safeSeconds = Math.max(0, Math.floor(totalSeconds))
-    const hours = Math.floor(safeSeconds / 3600)
-    const minutes = Math.floor((safeSeconds % 3600) / 60)
-    const seconds = safeSeconds % 60
-    return { hours, minutes, seconds }
-  }
-
-  const formatTimeInput = (totalSeconds: number) => {
-    const { hours, minutes, seconds } = secondsToTimeParts(totalSeconds)
-    if (hours > 0) {
-      return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`
-    }
-    return `${pad2(minutes)}:${pad2(seconds)}`
-  }
-
-  const formatDuration = (seconds: number) => {
-    const { hours, minutes, seconds: secs } = secondsToTimeParts(seconds)
-    if (hours > 0) return `${hours}h ${minutes}m ${secs}s`
-    if (minutes > 0) return `${minutes}m ${secs}s`
-    return `${secs}s`
-  }
-
-  const parseTimeInput = (value: string) => {
-    const trimmed = value.trim()
-    if (!trimmed) return null
-    const parts = trimmed.split(":")
-    if (parts.length !== 2 && parts.length !== 3) return null
-
-    const numbers = parts.map((part) => Number(part))
-    if (numbers.some((num) => Number.isNaN(num) || num < 0)) return null
-
-    if (parts.length === 2) {
-      const [minutes, seconds] = numbers
-      if (seconds >= 60) return null
-      return minutes * 60 + seconds
-    }
-
-    const [hours, minutes, seconds] = numbers
-    if (minutes >= 60 || seconds >= 60) return null
-    return hours * 3600 + minutes * 60 + seconds
-  }
-
-  const normalizeSlice = (slice: Partial<VideoSlice>): VideoSlice => {
-    return {
-      id: slice.id || createId(),
-      createdAt: slice.createdAt || Date.now(),
-      startTime: slice.startTime ?? 0,
-      endTime: slice.endTime ?? 0,
-      startTimeInput: slice.startTimeInput || "00:00",
-      endTimeInput: slice.endTimeInput || "00:00",
-      isPlaying: slice.isPlaying ?? false,
-      note: slice.note || "",
-      editing: slice.editing ?? false,
-      tags: Array.isArray(slice.tags) ? slice.tags : []
-    }
-  }
 
   const updateStartFromParts = (
     hours: string,
@@ -1561,62 +1480,14 @@ export default function Home({
                 </div>
                 {slice.editing ? (
                   <>
-                    <div className="flex flex-wrap gap-2 text-xs mt-2">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {chrome.i18n.getMessage("noteToolbar")}
-                      </span>
-                      <button
-                        type="button"
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
-                        onClick={() =>
-                          appendToSliceNote(slice.id, "**bold text**")
-                        }>
-                        {chrome.i18n.getMessage("boldLabel")}
-                      </button>
-                      <button
-                        type="button"
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
-                        onClick={() =>
-                          appendToSliceNote(slice.id, "*italic text*")
-                        }>
-                        {chrome.i18n.getMessage("italicLabel")}
-                      </button>
-                      <button
-                        type="button"
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
-                        onClick={() =>
-                          appendToSliceNote(slice.id, "```\ncode block\n```")
-                        }>
-                        {chrome.i18n.getMessage("codeLabel")}
-                      </button>
-                      <button
-                        type="button"
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
-                        onClick={() => handleInsertImage(slice.id)}>
-                        {chrome.i18n.getMessage("insertImage")}
-                      </button>
-                      <button
-                        type="button"
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 rounded-md hover:bg-gray-200"
-                        onClick={() => handleCaptureFrame(slice.id)}>
-                        {chrome.i18n.getMessage("captureFrame")}
-                      </button>
-                      <select
-                        className="px-2 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 rounded-md focus:outline-none"
-                        defaultValue=""
-                        onChange={(event) =>
-                          handleInsertTemplate(event, slice.id)
-                        }>
-                        <option value="" disabled>
-                          {chrome.i18n.getMessage("templateLabel")}
-                        </option>
-                        {noteTemplates.map((template) => (
-                          <option key={template.key} value={template.key}>
-                            {template.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <NoteToolbar
+                      sliceId={slice.id}
+                      templates={noteTemplates}
+                      onAppend={appendToSliceNote}
+                      onInsertImage={handleInsertImage}
+                      onCaptureFrame={handleCaptureFrame}
+                      onInsertTemplate={handleInsertTemplate}
+                    />
                     <textarea
                       className="mt-2 p-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg transition-shadow duration-300 ease-in-out focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50 w-full"
                       value={slice.note || ""}
