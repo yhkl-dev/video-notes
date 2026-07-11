@@ -738,8 +738,9 @@ export default function Home({
       currentSlices.map((s) => {
         if (s.id === slice.id) {
           return { ...s, isPlaying: !s.isPlaying }
+        } else {
+          return { ...s, isPlaying: false }
         }
-        return s
       })
     )
     if (!slice.isPlaying) {
@@ -854,9 +855,12 @@ export default function Home({
         e.preventDefault()
         setShowShortcuts(true)
       }
-      if ((e.ctrlKey || e.metaKey) && e.key === "S" && e.shiftKey) {
+      if ((e.ctrlKey || e.metaKey) && e.code === "KeyS") {
         e.preventDefault()
-        sendToBackground({ name: "get-current-time" }).then((res) => {
+        sendToBackground({
+          name: "get-current-time",
+          body: { tabId: currentVideo.tabId }
+        }).then((res) => {
           if (res?.currentTime != null) {
             const seconds = Math.round(res.currentTime)
             if (settingEnd) {
@@ -872,11 +876,9 @@ export default function Home({
                 setEndFromSeconds(seconds)
               }
               setSettingEnd(false)
-              addToast(`End snapped to ${formatTimeInput(seconds)}`, "info")
             } else {
               setStartFromSeconds(seconds)
               setSettingEnd(true)
-              addToast(`Start snapped to ${formatTimeInput(seconds)}`, "info")
             }
           }
         })
@@ -1118,7 +1120,7 @@ export default function Home({
             endLabel={formatTimeInput(
               timeToSeconds(endHour, endMinute, endSecond)
             )}
-            hintText={settingEnd ? "click to set end" : "click to set start"}
+            hintText=""
             onClick={(seconds) => {
               if (settingEnd) {
                 const startSec = timeToSeconds(
@@ -1240,7 +1242,6 @@ export default function Home({
                     d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Shortcuts
               </button>
             </div>
             <div className="flex items-center gap-3 py-2 px-1">

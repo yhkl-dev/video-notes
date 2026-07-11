@@ -56,7 +56,7 @@ export default function TimelineBar({
             const ratio = Math.max(0, Math.min(1, x / rect.width))
             onClick(Math.round(ratio * duration))
           }}
-          title="First click: set start, second click: set end">
+          title="">
           {slices.map((slice) => {
             const left = (slice.startTime / dur) * 100
             const width = ((slice.endTime - slice.startTime) / dur) * 100

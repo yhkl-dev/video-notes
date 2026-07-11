@@ -65,12 +65,6 @@ export default function ShortcutsModal({
               Ctrl+Shift+Z
             </kbd>
           </div>
-          <div className="flex justify-between">
-            <span>Snap current time</span>
-            <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-              Ctrl+Shift+S
-            </kbd>
-          </div>
         </div>
         <button
           className="mt-4 w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm"
