@@ -10,6 +10,9 @@ import type { ChangeEvent, DragEvent } from "react"
 import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
+import CoverageBar from "~components/coverage-bar"
+import ShortcutsModal from "~components/shortcuts-modal"
+import TimelineBar from "~components/timeline-bar"
 import { useToast } from "~components/toast"
 import type { VideoResult, VideoSlice } from "~types"
 
@@ -1183,93 +1186,39 @@ export default function Home({
               </div>
             </div>
           </div>
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                {chrome.i18n.getMessage("timeRange")}
-              </label>
-            </div>
-            <div className="relative mb-3">
-              <div
-                className="w-full h-10 bg-gray-100 dark:bg-gray-700 rounded-lg relative cursor-pointer overflow-hidden group"
-                onClick={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect()
-                  const x = e.clientX - rect.left
-                  const ratio = Math.max(0, Math.min(1, x / rect.width))
-                  const seconds = Math.round(
-                    ratio * (currentVideo.video?.duration || 0)
-                  )
-                  if (settingEnd) {
-                    const startSec = timeToSeconds(
-                      startHour,
-                      startMinute,
-                      startSecond
-                    )
-                    if (seconds < startSec) {
-                      setStartFromSeconds(seconds)
-                      setEndFromSeconds(startSec)
-                    } else {
-                      setEndFromSeconds(seconds)
-                    }
-                    setSettingEnd(false)
-                  } else {
-                    setStartFromSeconds(seconds)
-                    setSettingEnd(true)
-                  }
-                }}
-                title="First click: set start, second click: set end">
-                {videoSlices.map((slice) => {
-                  const dur = currentVideo.video?.duration || 1
-                  const left = (slice.startTime / dur) * 100
-                  const width = ((slice.endTime - slice.startTime) / dur) * 100
-                  const colors = [
-                    "bg-blue-300/60 dark:bg-blue-500/40",
-                    "bg-green-300/60 dark:bg-green-500/40",
-                    "bg-purple-300/60 dark:bg-purple-500/40",
-                    "bg-amber-300/60 dark:bg-amber-500/40",
-                    "bg-pink-300/60 dark:bg-pink-500/40",
-                    "bg-teal-300/60 dark:bg-teal-500/40"
-                  ]
-                  const colorIdx =
-                    Math.abs(hashTag(slice.tags?.[0] || slice.id)) %
-                    colors.length
-                  return (
-                    <div
-                      key={slice.id}
-                      className={`absolute top-1 bottom-1 rounded ${colors[colorIdx]} border border-white/30 dark:border-gray-600/30 transition-opacity hover:opacity-90`}
-                      style={{
-                        left: `${left}%`,
-                        width: `${Math.max(width, 0.3)}%`
-                      }}
-                      title={`${slice.startTimeInput} - ${slice.endTimeInput}${slice.note ? `: ${slice.note.slice(0, 40)}` : ""}`}
-                    />
-                  )
-                })}
-                <div
-                  className="absolute top-0 bottom-0 bg-blue-500/30 dark:bg-blue-400/30 border-l-2 border-r-2 border-blue-500 dark:border-blue-400 rounded pointer-events-none"
-                  style={{
-                    left: `${(Math.min(timeToSeconds(startHour, startMinute, startSecond), timeToSeconds(endHour, endMinute, endSecond)) / (currentVideo.video?.duration || 1)) * 100}%`,
-                    width: `${(Math.abs(timeToSeconds(endHour, endMinute, endSecond) - timeToSeconds(startHour, startMinute, startSecond)) / (currentVideo.video?.duration || 1)) * 100}%`
-                  }}
-                />
-              </div>
-              <div className="flex justify-between text-[10px] text-gray-400 dark:text-gray-500 mt-1">
-                <span>
-                  {formatTimeInput(
-                    timeToSeconds(startHour, startMinute, startSecond)
-                  )}
-                </span>
-                <span className="text-gray-300 dark:text-gray-600 text-[9px]">
-                  {settingEnd ? "click to set end" : "click to set start"}
-                </span>
-                <span>
-                  {formatTimeInput(
-                    timeToSeconds(endHour, endMinute, endSecond)
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
+          <TimelineBar
+            slices={videoSlices}
+            duration={currentVideo.video?.duration || 0}
+            startSeconds={timeToSeconds(startHour, startMinute, startSecond)}
+            endSeconds={timeToSeconds(endHour, endMinute, endSecond)}
+            settingEnd={settingEnd}
+            startLabel={formatTimeInput(
+              timeToSeconds(startHour, startMinute, startSecond)
+            )}
+            endLabel={formatTimeInput(
+              timeToSeconds(endHour, endMinute, endSecond)
+            )}
+            hintText={settingEnd ? "click to set end" : "click to set start"}
+            onClick={(seconds) => {
+              if (settingEnd) {
+                const startSec = timeToSeconds(
+                  startHour,
+                  startMinute,
+                  startSecond
+                )
+                if (seconds < startSec) {
+                  setStartFromSeconds(seconds)
+                  setEndFromSeconds(startSec)
+                } else {
+                  setEndFromSeconds(seconds)
+                }
+                setSettingEnd(false)
+              } else {
+                setStartFromSeconds(seconds)
+                setSettingEnd(true)
+              }
+            }}
+          />
           <button
             className="w-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 font-medium py-2.5 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 border border-transparent hover:border-gray-300 dark:hover:border-gray-600"
             onClick={addSlice}>
@@ -1288,30 +1237,9 @@ export default function Home({
             </svg>
             {chrome.i18n.getMessage("addTimeSegment")}
           </button>
-          {videoSlices.length > 0 &&
-            (() => {
-              const coverage = computeCoverage()
-              return (
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    <span>{chrome.i18n.getMessage("coverageStats")}</span>
-                    <span>
-                      {chrome.i18n
-                        .getMessage("coverage")
-                        .replace("{percent}", String(coverage.percent))}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full transition-all"
-                      style={{
-                        width: `${Math.min(coverage.percent, 100)}%`
-                      }}
-                    />
-                  </div>
-                </div>
-              )
-            })()}
+          {videoSlices.length > 0 && (
+            <CoverageBar percent={computeCoverage().percent} />
+          )}
         </div>
       )}
       {currentVideo.video && (
@@ -1813,79 +1741,10 @@ export default function Home({
           </ul>
         </div>
       )}
-      {showShortcuts && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
-          onClick={() => setShowShortcuts(false)}>
-          <div
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4"
-            onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold dark:text-white">
-                {chrome.i18n.getMessage("shortcutsTitle")}
-              </h3>
-              <button
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                onClick={() => setShowShortcuts(false)}>
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-              <div className="flex justify-between">
-                <span>{chrome.i18n.getMessage("shortcutsSpace")}</span>
-                <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-                  Space
-                </kbd>
-              </div>
-              <div className="flex justify-between">
-                <span>{chrome.i18n.getMessage("shortcutsSeek")}</span>
-                <span>
-                  <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-                    ←
-                  </kbd>{" "}
-                  <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-                    →
-                  </kbd>
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>{chrome.i18n.getMessage("shortcutsUndo")}</span>
-                <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-                  Ctrl+Z
-                </kbd>
-              </div>
-              <div className="flex justify-between">
-                <span>{chrome.i18n.getMessage("shortcutsRedo")}</span>
-                <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-                  Ctrl+Shift+Z
-                </kbd>
-              </div>
-              <div className="flex justify-between">
-                <span>Snap current time</span>
-                <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
-                  Ctrl+Shift+S
-                </kbd>
-              </div>
-            </div>
-            <button
-              className="mt-4 w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm"
-              onClick={() => setShowShortcuts(false)}>
-              {chrome.i18n.getMessage("shortcutsClose")}
-            </button>
-          </div>
-        </div>
-      )}
+      <ShortcutsModal
+        show={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+      />
     </>
   )
 }
