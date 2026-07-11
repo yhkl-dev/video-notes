@@ -33,8 +33,8 @@ export async function saveSnapshot(
     videoTitle,
     slices: slices.map((s) => ({ ...s, isPlaying: false, editing: false }))
   }
-  existing.push(snapshot)
-  await chrome.storage.local.set({ [STORAGE_KEY]: existing })
+  const updated = [...existing, snapshot]
+  await chrome.storage.local.set({ [STORAGE_KEY]: updated })
   return snapshot
 }
 

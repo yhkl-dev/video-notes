@@ -1,5 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
+const FALLBACK_CHAPTER_DURATION = 300
+
 export type RequestBody = {
   tabId: number
 }
