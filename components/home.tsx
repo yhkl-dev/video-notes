@@ -67,6 +67,7 @@ export default function Home({
   const [loopSlices, setLoopSlices] = useState<Set<string>>(new Set())
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [settingEnd, setSettingEnd] = useState(false)
+  const [imageCache, setImageCache] = useState<Map<string, string>>(new Map())
   const [undoStack, setUndoStack] = useState<VideoSlice[][]>([])
   const [redoStack, setRedoStack] = useState<VideoSlice[][]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -399,6 +400,13 @@ export default function Home({
       return
     }
     pushUndo(videoSlicesRef.current)
+    const removeKeys = Array.from(selectedIds).map((id) => `vn_img_${id}`)
+    chrome.storage.local.remove(removeKeys)
+    setImageCache((prev) => {
+      const next = new Map(prev)
+      for (const key of removeKeys) next.delete(key)
+      return next
+    })
     setVideoSlices((currentSlices) => {
       const updatedSlices = currentSlices.filter(
         (slice) => !selectedIds.has(slice.id)
@@ -625,7 +633,10 @@ export default function Home({
         body: { tabId: currentVideo.tabId }
       })
       if (res?.dataUrl) {
-        appendToSliceNote(id, `![Screenshot](${res.dataUrl})`)
+        const imgKey = `vn_img_${id}`
+        await chrome.storage.local.set({ [imgKey]: res.dataUrl })
+        setImageCache((prev) => new Map(prev).set(imgKey, res.dataUrl))
+        appendToSliceNote(id, `![Screenshot](vn://${imgKey})`)
         addToast(chrome.i18n.getMessage("successCapture"), "success")
       } else {
         addToast(chrome.i18n.getMessage("errorCaptureFailed"), "error")
@@ -702,7 +713,14 @@ export default function Home({
   }
 
   const renderMarkdown = (text: string) => {
-    const { processed, timestamps } = extractTimestamps(text)
+    let resolved = text.replace(
+      /\[([^\]]*)\]\(vn:\/\/(vn_img_[^)]+)\)/g,
+      (_m, alt, key) => {
+        const dataUrl = imageCache.get(key)
+        return dataUrl ? `[${alt}](${dataUrl})` : _m
+      }
+    )
+    const { processed, timestamps } = extractTimestamps(resolved)
     const raw = DOMPurify.sanitize(
       marked.parse(processed, { async: false }) as string
     )
@@ -844,6 +862,12 @@ export default function Home({
 
   const removeSlice = (id: string) => {
     pushUndo(videoSlicesRef.current)
+    chrome.storage.local.remove(`vn_img_${id}`)
+    setImageCache((prev) => {
+      const next = new Map(prev)
+      next.delete(`vn_img_${id}`)
+      return next
+    })
     setVideoSlices((currentSlices) => {
       const updatedSlices = currentSlices.filter((slice) => slice.id !== id)
       localstorage.set(currentVideo.videoURL, updatedSlices)
@@ -913,12 +937,33 @@ export default function Home({
         const normalized = res.map((slice) => normalizeSlice(slice))
         setVideoSlices(normalized)
         setSelectedIds(new Set())
+
+        const imgKeys = new Set<string>()
+        for (const slice of normalized) {
+          const matches = slice.note.matchAll(/vn:\/\/(vn_img_[^)\s]+)/g)
+          for (const m of matches) {
+            imgKeys.add(m[1])
+          }
+        }
+        if (imgKeys.size > 0) {
+          const stored = await chrome.storage.local.get(Array.from(imgKeys))
+          const cache = new Map<string, string>()
+          for (const [key, value] of Object.entries(stored)) {
+            if (typeof value === "string") cache.set(key, value)
+          }
+          setImageCache(cache)
+        }
+
         const needsSave = res.some(
           (slice) => !slice.id || !slice.createdAt || !slice.tags
         )
         if (needsSave) {
           await localstorage.set(currentVideo.videoURL, normalized)
         }
+      } else {
+        setVideoSlices([])
+        setSelectedIds(new Set())
+        setImageCache(new Map())
       }
     }
     getCurrentVideoSlice(currentVideo)
