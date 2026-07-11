@@ -573,32 +573,25 @@ export default function Home({
         body: { tabId: currentVideo.tabId }
       })
       if (res?.chapters?.length > 0) {
-        const existingIds = new Set(videoSlices.map((s) => s.id))
         const newSlices: VideoSlice[] = []
-        for (const ch of res.chapters) {
-          for (let i = 0; i < res.chapters.length; i++) {
-            const endTime =
-              i < res.chapters.length - 1
-                ? res.chapters[i + 1].startTime
-                : currentVideo.video?.duration || ch.startTime + 300
-            if (res.chapters[i] === ch) {
-              const slice: VideoSlice = {
-                id: createId(),
-                createdAt: Date.now(),
-                startTime: ch.startTime,
-                endTime: endTime,
-                startTimeInput: formatTimeInput(ch.startTime),
-                endTimeInput: formatTimeInput(endTime),
-                isPlaying: false,
-                note: ch.title,
-                editing: false,
-                tags: []
-              }
-              if (!existingIds.has(slice.id)) {
-                newSlices.push(slice)
-              }
-            }
-          }
+        for (let i = 0; i < res.chapters.length; i++) {
+          const ch = res.chapters[i]
+          const endTime =
+            i < res.chapters.length - 1
+              ? res.chapters[i + 1].startTime
+              : currentVideo.video?.duration || ch.startTime + 300
+          newSlices.push({
+            id: createId(),
+            createdAt: Date.now(),
+            startTime: ch.startTime,
+            endTime,
+            startTimeInput: formatTimeInput(ch.startTime),
+            endTimeInput: formatTimeInput(endTime),
+            isPlaying: false,
+            note: ch.title,
+            editing: false,
+            tags: []
+          })
         }
         if (newSlices.length > 0) {
           pushUndo(videoSlicesRef.current)
