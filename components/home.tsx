@@ -12,6 +12,7 @@ import { Storage } from "@plasmohq/storage"
 
 import CoverageBar from "~components/coverage-bar"
 import NoteToolbar from "~components/note-toolbar"
+import ProjectSnapshots from "~components/project-snapshots"
 import ShortcutsModal from "~components/shortcuts-modal"
 import TimelineBar from "~components/timeline-bar"
 import { useToast } from "~components/toast"
@@ -60,6 +61,7 @@ export default function Home({
   const [undoStack, setUndoStack] = useState<VideoSlice[][]>([])
   const [redoStack, setRedoStack] = useState<VideoSlice[][]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const backupInputRef = useRef<HTMLInputElement>(null)
   const videoSlicesRef = useRef<VideoSlice[]>(videoSlices)
   videoSlicesRef.current = videoSlices
   const actionRefs = useRef<{
@@ -515,6 +517,53 @@ export default function Home({
     anchor.click()
     setTimeout(() => URL.revokeObjectURL(url), 100)
     addToast(chrome.i18n.getMessage("successExportedMd"), "success")
+  }
+
+  const handleBackupAll = async () => {
+    addToast("Creating backup...", "info")
+    try {
+      const allData: Record<string, any> = {}
+      const allKeys = await chrome.storage.local.get(null)
+      for (const [key, value] of Object.entries(allKeys)) {
+        allData[key] = value
+      }
+      const blob = new Blob([JSON.stringify(allData, null, 2)], {
+        type: "application/json"
+      })
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement("a")
+      anchor.href = url
+      anchor.download = `video-notes-backup-${Date.now()}.json`
+      anchor.click()
+      setTimeout(() => URL.revokeObjectURL(url), 100)
+      addToast("Backup downloaded", "success")
+    } catch {
+      addToast("Backup failed", "error")
+    }
+  }
+
+  const handleRestoreBackup = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const text = e.target?.result
+        if (typeof text !== "string") return
+        const data = JSON.parse(text)
+        let count = 0
+        for (const [key, value] of Object.entries(data)) {
+          await chrome.storage.local.set({ [key]: value })
+          count++
+        }
+        addToast(`Restored ${count} items. Reload to apply.`, "success")
+        setTimeout(() => refresh(), 1000)
+      } catch {
+        addToast("Invalid backup file", "error")
+      }
+    }
+    reader.readAsText(file)
+    event.target.value = ""
   }
 
   const handleImportYoutubeChapters = async () => {
@@ -1349,6 +1398,23 @@ export default function Home({
               </button>
             </div>
             <div className="flex items-center gap-3 py-2 px-1">
+              <ProjectSnapshots
+                currentVideoURL={currentVideo.videoURL}
+                videoSlices={videoSlices}
+                currentVideoTitle={currentVideo.tabTitle}
+                onLoadSlices={(slices) => {
+                  const withNewIds = slices.map((s) => ({
+                    ...s,
+                    id: createId(),
+                    createdAt: Date.now()
+                  }))
+                  setVideoSlices((current) => {
+                    const merged = [...current, ...withNewIds]
+                    localstorage.set(currentVideo.videoURL, merged)
+                    return merged
+                  })
+                }}
+              />
               <div className="flex items-center gap-0.5">
                 <button
                   className="px-2 py-1 text-[11px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
@@ -1516,6 +1582,59 @@ export default function Home({
                   accept=".json"
                   className="hidden"
                   onChange={handleImport}
+                />
+                <div className="relative group">
+                  <button
+                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={handleBackupAll}
+                    type="button"
+                    title="Backup all data">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                  </button>
+                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    Backup
+                  </span>
+                </div>
+                <div className="relative group">
+                  <button
+                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={() => backupInputRef.current?.click()}
+                    type="button"
+                    title="Restore backup">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
+                  </button>
+                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    Restore
+                  </span>
+                </div>
+                <input
+                  ref={backupInputRef}
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={handleRestoreBackup}
                 />
                 <div className="relative group">
                   <button
