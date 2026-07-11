@@ -108,6 +108,13 @@ export default function Home({
     return `${pad2(minutes)}:${pad2(seconds)}`
   }
 
+  const formatDuration = (seconds: number) => {
+    const { hours, minutes, seconds: secs } = secondsToTimeParts(seconds)
+    if (hours > 0) return `${hours}h ${minutes}m ${secs}s`
+    if (minutes > 0) return `${minutes}m ${secs}s`
+    return `${secs}s`
+  }
+
   const parseTimeInput = (value: string) => {
     const trimmed = value.trim()
     if (!trimmed) return null
@@ -808,9 +815,8 @@ export default function Home({
       currentSlices.map((s) => {
         if (s.id === slice.id) {
           return { ...s, isPlaying: !s.isPlaying }
-        } else {
-          return { ...s, isPlaying: false }
         }
+        return s
       })
     )
     if (!slice.isPlaying) {
@@ -925,10 +931,37 @@ export default function Home({
         e.preventDefault()
         setShowShortcuts(true)
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === "S" && e.shiftKey) {
+        e.preventDefault()
+        sendToBackground({ name: "get-current-time" }).then((res) => {
+          if (res?.currentTime != null) {
+            const seconds = Math.round(res.currentTime)
+            if (settingEnd) {
+              const startSec = timeToSeconds(
+                startHour,
+                startMinute,
+                startSecond
+              )
+              if (seconds < startSec) {
+                setStartFromSeconds(seconds)
+                setEndFromSeconds(startSec)
+              } else {
+                setEndFromSeconds(seconds)
+              }
+              setSettingEnd(false)
+              addToast(`End snapped to ${formatTimeInput(seconds)}`, "info")
+            } else {
+              setStartFromSeconds(seconds)
+              setSettingEnd(true)
+              addToast(`Start snapped to ${formatTimeInput(seconds)}`, "info")
+            }
+          }
+        })
+      }
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [currentVideo.tabId])
+  }, [currentVideo.tabId, settingEnd, startHour, startMinute, startSecond])
 
   useEffect(() => {
     const getCurrentVideoSlice = async (currentVideo: VideoResult) => {
@@ -1536,8 +1569,10 @@ export default function Home({
                     />
                     <div>
                       <span className="dark:text-gray-200">
-                        Start: {slice.startTimeInput} - End:{" "}
-                        {slice.endTimeInput}
+                        {slice.startTimeInput} - {slice.endTimeInput}
+                      </span>
+                      <span className="text-gray-400 dark:text-gray-500 text-xs ml-1.5">
+                        {formatDuration(slice.endTime - slice.startTime)}
                       </span>
                     </div>
                   </div>
@@ -1833,6 +1868,12 @@ export default function Home({
                 <span>{chrome.i18n.getMessage("shortcutsRedo")}</span>
                 <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
                   Ctrl+Shift+Z
+                </kbd>
+              </div>
+              <div className="flex justify-between">
+                <span>Snap current time</span>
+                <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
+                  Ctrl+Shift+S
                 </kbd>
               </div>
             </div>
