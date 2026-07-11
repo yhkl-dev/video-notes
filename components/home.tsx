@@ -5,7 +5,7 @@ import resetIconBase64 from "data-base64:~assets/reset.png"
 import DOMPurify from "dompurify"
 import { marked } from "marked"
 import { useEffect, useMemo, useRef, useState } from "react"
-import type { ChangeEvent, DragEvent, KeyboardEvent } from "react"
+import type { ChangeEvent, DragEvent } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
