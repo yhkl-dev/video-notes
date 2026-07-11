@@ -8,7 +8,10 @@ export type ResponseBody = {
   dataUrl: string | null
 }
 
-const handler: PlasmoMessaging.MessageHandler<RequestBody, ResponseBody> = async (req, res) => {
+const handler: PlasmoMessaging.MessageHandler<
+  RequestBody,
+  ResponseBody
+> = async (req, res) => {
   const tabId = req.body.tabId
 
   try {

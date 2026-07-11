@@ -40,8 +40,8 @@ const handler: PlasmoMessaging.MessageHandler<
         }
 
         const preferred =
-          videos.find((video) =>
-            Number.isFinite(video.duration) && video.duration > 0
+          videos.find(
+            (video) => Number.isFinite(video.duration) && video.duration > 0
           ) ?? videos[0]
 
         return {
@@ -54,8 +54,7 @@ const handler: PlasmoMessaging.MessageHandler<
     const match = result
       ?.map((item) => item.result)
       ?.find(
-        (item) =>
-          item && item.currentTime !== null && item.duration !== null
+        (item) => item && item.currentTime !== null && item.duration !== null
       )
 
     res.send(match ?? { currentTime: null, duration: null })

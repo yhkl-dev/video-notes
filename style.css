@@ -46,7 +46,8 @@
 }
 
 .markdown-preview code {
-  font-family: "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family:
+    "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   background-color: #f0f0f0;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
@@ -97,7 +98,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
   }
   50% {
