@@ -4,31 +4,47 @@ export type RequestBody = {
   startTime: number
   endTime: number
   tabId: number
+  loop?: boolean
 }
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
-  chrome.scripting.executeScript({
-    target: { tabId: req.body.tabId },
-    func: (startTime: number, endTime: number) => {
-      const video = document.querySelector("video")
-      video.currentTime = startTime
-      function onTimeUpdate() {
-        if (video.currentTime >= endTime) {
-          video.pause()
-          video.removeEventListener("timeupdate", onTimeUpdate)
+  chrome.scripting
+    .executeScript({
+      target: { tabId: req.body.tabId },
+      func: (startTime: number, endTime: number, loop: boolean) => {
+        const video = document.querySelector("video") as HTMLVideoElement | null
+        if (!video) return
+        const prev = (video as any).__vnSliceHandler as (() => void) | undefined
+        if (prev) video.removeEventListener("timeupdate", prev)
+        function onTimeUpdate() {
+          if (video.currentTime >= endTime) {
+            if (loop) {
+              video.currentTime = startTime
+              video.play()
+            } else {
+              video.pause()
+              video.removeEventListener("timeupdate", onTimeUpdate)
+              delete (video as any).__vnSliceHandler
+            }
+          }
         }
-      }
-
-      video.addEventListener("loadedmetadata", () => {
-        video.currentTime = startTime
-        video.play()
-      })
-
-      video.addEventListener("timeupdate", onTimeUpdate)
-      video.pause()
-    },
-    args: [req.body.startTime, req.body.endTime]
-  })
+        ;(video as any).__vnSliceHandler = onTimeUpdate
+        video.addEventListener("timeupdate", onTimeUpdate)
+        const doPlay = () => {
+          video.currentTime = startTime
+          video.play()
+        }
+        if (video.readyState < 1) {
+          video.addEventListener("loadedmetadata", doPlay, { once: true })
+        } else {
+          doPlay()
+        }
+      },
+      args: [req.body.startTime, req.body.endTime, req.body.loop || false]
+    })
+    .catch(() => {
+      // tab may have been closed
+    })
 }
 
 export default handler

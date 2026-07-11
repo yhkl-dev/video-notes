@@ -9,13 +9,17 @@ export type RequestBody = {
 }
 
 const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
-  chrome.scripting.executeScript({
-    target: { tabId: req.body.tabId },
-    func: () => {
-      const video = document.querySelector("video")
-      video.pause()
-    }
-  })
+  chrome.scripting
+    .executeScript({
+      target: { tabId: req.body.tabId },
+      func: () => {
+        const video = document.querySelector("video")
+        video?.pause()
+      }
+    })
+    .catch(() => {
+      // tab may have been closed
+    })
 }
 
 export default handler

@@ -230,5 +230,85 @@
   "successNotesSaved": {
     "message": "Notes saved successfully",
     "description": "success message when notes are saved"
+  },
+  "exportMarkdown": {
+    "message": "Export Markdown",
+    "description": "export slices as markdown"
+  },
+  "successExportedMd": {
+    "message": "Selected slices exported as Markdown",
+    "description": "success message for markdown export"
+  },
+  "importSlices": {
+    "message": "Import",
+    "description": "import slices button"
+  },
+  "successImported": {
+    "message": "Imported {count} slices",
+    "description": "success message for import"
+  },
+  "errorImportFormat": {
+    "message": "Invalid import file format",
+    "description": "error message for invalid import"
+  },
+  "loopToggle": {
+    "message": "Loop playback",
+    "description": "toggle loop playback for slice"
+  },
+  "captureFrame": {
+    "message": "Capture frame",
+    "description": "capture video frame as screenshot"
+  },
+  "capturing": {
+    "message": "Capturing...",
+    "description": "label while capturing screenshot"
+  },
+  "darkMode": {
+    "message": "Toggle dark mode",
+    "description": "dark mode toggle button"
+  },
+  "shortcutsTitle": {
+    "message": "Keyboard Shortcuts",
+    "description": "shortcuts modal title"
+  },
+  "shortcutsSpace": {
+    "message": "Play / Pause current slice",
+    "description": "space key shortcut"
+  },
+  "shortcutsSeek": {
+    "message": "Seek backward / forward 5s",
+    "description": "arrow key shortcut"
+  },
+  "shortcutsUndo": {
+    "message": "Undo",
+    "description": "undo shortcut"
+  },
+  "shortcutsRedo": {
+    "message": "Redo",
+    "description": "redo shortcut"
+  },
+  "shortcutsClose": {
+    "message": "Close",
+    "description": "close shortcuts modal"
+  },
+  "coverageStats": {
+    "message": "Coverage",
+    "description": "coverage statistics label"
+  },
+  "coverage": {
+    "message": "{percent}% of video covered",
+    "description": "coverage percentage"
+  },
+  "undoToast": {
+    "message": "Undo",
+    "description": "undo button in toast"
+  },
+  "errorCaptureFailed": {
+    "message": "Failed to capture frame",
+    "description": "error when screenshot capture fails"
+  },
+  "successCapture": {
+    "message": "Screenshot captured",
+    "description": "success when screenshot is captured"
   }
 }

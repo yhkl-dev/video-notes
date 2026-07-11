@@ -230,5 +230,85 @@
   "successNotesSaved": {
     "message": "笔记保存成功",
     "description": "success message when notes are saved"
+  },
+  "exportMarkdown": {
+    "message": "导出 Markdown",
+    "description": "export slices as markdown"
+  },
+  "successExportedMd": {
+    "message": "已导出选中片段为 Markdown",
+    "description": "success message for markdown export"
+  },
+  "importSlices": {
+    "message": "导入",
+    "description": "import slices button"
+  },
+  "successImported": {
+    "message": "已导入 {count} 个片段",
+    "description": "success message for import"
+  },
+  "errorImportFormat": {
+    "message": "导入文件格式不正确",
+    "description": "error message for invalid import"
+  },
+  "loopToggle": {
+    "message": "循环播放",
+    "description": "toggle loop playback for slice"
+  },
+  "captureFrame": {
+    "message": "截图",
+    "description": "capture video frame as screenshot"
+  },
+  "capturing": {
+    "message": "截图中...",
+    "description": "label while capturing screenshot"
+  },
+  "darkMode": {
+    "message": "切换深色模式",
+    "description": "dark mode toggle button"
+  },
+  "shortcutsTitle": {
+    "message": "快捷键",
+    "description": "shortcuts modal title"
+  },
+  "shortcutsSpace": {
+    "message": "播放 / 暂停当前片段",
+    "description": "space key shortcut"
+  },
+  "shortcutsSeek": {
+    "message": "快退 / 快进 5 秒",
+    "description": "arrow key shortcut"
+  },
+  "shortcutsUndo": {
+    "message": "撤销",
+    "description": "undo shortcut"
+  },
+  "shortcutsRedo": {
+    "message": "重做",
+    "description": "redo shortcut"
+  },
+  "shortcutsClose": {
+    "message": "关闭",
+    "description": "close shortcuts modal"
+  },
+  "coverageStats": {
+    "message": "覆盖率",
+    "description": "coverage statistics label"
+  },
+  "coverage": {
+    "message": "已覆盖视频 {percent}%",
+    "description": "coverage percentage"
+  },
+  "undoToast": {
+    "message": "撤销",
+    "description": "undo button in toast"
+  },
+  "errorCaptureFailed": {
+    "message": "截图失败",
+    "description": "error when screenshot capture fails"
+  },
+  "successCapture": {
+    "message": "截图成功",
+    "description": "success when screenshot is captured"
   }
 }
