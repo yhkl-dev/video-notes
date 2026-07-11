@@ -30,7 +30,7 @@ const handler: PlasmoMessaging.MessageHandler<
           const ctx = canvas.getContext("2d")
           if (!ctx) return null
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-          return canvas.toDataURL("image/jpeg", 0.6)
+          return canvas.toDataURL("image/jpeg", 0.4)
         } catch {
           return null
         }
@@ -49,7 +49,7 @@ const handler: PlasmoMessaging.MessageHandler<
     const win = await chrome.windows.getCurrent()
     const dataUrl = await chrome.tabs.captureVisibleTab(win.id, {
       format: "jpeg",
-      quality: 50
+      quality: 30
     })
     res.send({ dataUrl })
   } catch {

@@ -344,14 +344,16 @@ export default function Home({
     id: string,
     updater: (current: string) => string
   ) => {
-    setVideoSlices((currentSlices) =>
-      currentSlices.map((slice) => {
+    setVideoSlices((currentSlices) => {
+      const updated = currentSlices.map((slice) => {
         if (slice.id === id) {
           return { ...slice, note: updater(slice.note || "") }
         }
         return slice
       })
-    )
+      localstorage.set(currentVideo.videoURL, updated)
+      return updated
+    })
   }
 
   const appendToSliceNote = (id: string, snippet: string) => {
