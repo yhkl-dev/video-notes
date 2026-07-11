@@ -517,6 +517,93 @@ export default function Home({
     addToast(chrome.i18n.getMessage("successExportedMd"), "success")
   }
 
+  const handleImportYoutubeChapters = async () => {
+    try {
+      const res = await sendToBackground({
+        name: "import-youtube-chapters",
+        body: { tabId: currentVideo.tabId }
+      })
+      if (res?.chapters?.length > 0) {
+        const existingIds = new Set(videoSlices.map((s) => s.id))
+        const newSlices: VideoSlice[] = []
+        for (const ch of res.chapters) {
+          for (let i = 0; i < res.chapters.length; i++) {
+            const endTime =
+              i < res.chapters.length - 1
+                ? res.chapters[i + 1].startTime
+                : currentVideo.video?.duration || ch.startTime + 300
+            if (res.chapters[i] === ch) {
+              const slice: VideoSlice = {
+                id: createId(),
+                createdAt: Date.now(),
+                startTime: ch.startTime,
+                endTime: endTime,
+                startTimeInput: formatTimeInput(ch.startTime),
+                endTimeInput: formatTimeInput(endTime),
+                isPlaying: false,
+                note: ch.title,
+                editing: false,
+                tags: []
+              }
+              if (!existingIds.has(slice.id)) {
+                newSlices.push(slice)
+              }
+            }
+          }
+        }
+        if (newSlices.length > 0) {
+          pushUndo(videoSlicesRef.current)
+          setVideoSlices((current) => {
+            const merged = [...current, ...newSlices]
+            localstorage.set(currentVideo.videoURL, merged)
+            return merged
+          })
+          addToast(`Imported ${newSlices.length} chapters`, "success")
+        }
+      } else {
+        addToast("No chapters found on this page", "info")
+      }
+    } catch {
+      addToast("Failed to import chapters", "error")
+    }
+  }
+
+  const handleSrtExport = () => {
+    const exportSlices =
+      selectedIds.size > 0
+        ? videoSlices.filter((slice) => selectedIds.has(slice.id))
+        : videoSlices
+    if (exportSlices.length === 0) {
+      addToast(chrome.i18n.getMessage("errorNoSelection"), "error")
+      return
+    }
+    const sorted = [...exportSlices].sort((a, b) => a.startTime - b.startTime)
+    const toSrtTime = (seconds: number) => {
+      const h = Math.floor(seconds / 3600)
+      const m = Math.floor((seconds % 3600) / 60)
+      const s = Math.floor(seconds % 60)
+      const ms = Math.round((seconds - Math.floor(seconds)) * 1000)
+      return `${pad2(h)}:${pad2(m)}:${pad2(s)},${String(ms).padStart(3, "0")}`
+    }
+    const lines: string[] = []
+    sorted.forEach((slice, i) => {
+      lines.push(String(i + 1))
+      lines.push(
+        `${toSrtTime(slice.startTime)} --> ${toSrtTime(slice.endTime)}`
+      )
+      lines.push(slice.note?.trim() || slice.startTimeInput)
+      lines.push("")
+    })
+    const blob = new Blob([lines.join("\n")], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement("a")
+    anchor.href = url
+    anchor.download = `video-subtitles-${Date.now()}.srt`
+    anchor.click()
+    setTimeout(() => URL.revokeObjectURL(url), 100)
+    addToast("SRT exported", "success")
+  }
+
   const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -714,6 +801,15 @@ export default function Home({
     ) {
       addToast(chrome.i18n.getMessage("errorTimeExceedsDuration"), "error")
       return
+    }
+    const overlaps = videoSlices.filter(
+      (s) => startTimeInSeconds < s.endTime && endTimeInSeconds > s.startTime
+    )
+    if (overlaps.length > 0) {
+      addToast(
+        `Overlaps with ${overlaps.length} existing segment(s)`,
+        "warning"
+      )
     }
     const newSlice: VideoSlice = {
       id: createId(),
@@ -1268,9 +1364,38 @@ export default function Home({
                 </button>
               </div>
               {selectedIds.size > 0 && (
-                <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
-                  {selectedIds.size} selected
-                </span>
+                <>
+                  <span className="text-[11px] text-gray-400 dark:text-gray-500 tabular-nums">
+                    {selectedIds.size} selected
+                  </span>
+                  {selectedIds.size >= 2 && (
+                    <input
+                      type="text"
+                      className="w-24 px-2 py-0.5 text-[11px] border border-gray-200 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      placeholder="Add tag to all"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && e.currentTarget.value.trim()) {
+                          const tag = e.currentTarget.value.trim()
+                          setVideoSlices((current) => {
+                            const updated = current.map((s) =>
+                              selectedIds.has(s.id)
+                                ? {
+                                    ...s,
+                                    tags: s.tags.includes(tag)
+                                      ? s.tags
+                                      : [...s.tags, tag]
+                                  }
+                                : s
+                            )
+                            localstorage.set(currentVideo.videoURL, updated)
+                            return updated
+                          })
+                          e.currentTarget.value = ""
+                        }
+                      }}
+                    />
+                  )}
+                </>
               )}
               <div className="flex-1" />
               <div className="flex items-center gap-0.5">
@@ -1343,6 +1468,29 @@ export default function Home({
                 <div className="relative group">
                   <button
                     className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={handleSrtExport}
+                    type="button"
+                    title="Export SRT">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </button>
+                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    Export SRT
+                  </span>
+                </div>
+                <div className="relative group">
+                  <button
+                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     onClick={() => fileInputRef.current?.click()}
                     type="button">
                     <svg
@@ -1369,6 +1517,35 @@ export default function Home({
                   className="hidden"
                   onChange={handleImport}
                 />
+                <div className="relative group">
+                  <button
+                    className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={handleImportYoutubeChapters}
+                    type="button"
+                    title="Import YouTube chapters">
+                    <svg
+                      className="w-3.5 h-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                    YT Chapters
+                  </span>
+                </div>
               </div>
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
               <div className="relative group">
