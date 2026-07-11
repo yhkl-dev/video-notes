@@ -348,13 +348,14 @@ export default function Home({
   }
 
   const handleBatchExport = () => {
-    if (selectedIds.size === 0) {
+    const exportSlices =
+      selectedIds.size > 0
+        ? videoSlices.filter((slice) => selectedIds.has(slice.id))
+        : videoSlices
+    if (exportSlices.length === 0) {
       addToast(chrome.i18n.getMessage("errorNoSelection"), "error")
       return
     }
-    const exportSlices = videoSlices.filter((slice) =>
-      selectedIds.has(slice.id)
-    )
     const dataStr = JSON.stringify(exportSlices, null, 2)
     const blob = new Blob([dataStr], { type: "application/json" })
     const url = URL.createObjectURL(blob)
