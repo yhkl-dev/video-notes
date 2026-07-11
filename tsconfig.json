@@ -5,6 +5,7 @@
   ],
   "include": [
     ".plasmo/index.d.ts",
+    ".plasmo/global.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
   ],
@@ -12,8 +13,11 @@
     "paths": {
       "~*": [
         "./*"
+      ],
+      "*": [
+        "./*"
       ]
     },
-    "baseUrl": "."
+    "moduleResolution": "bundler"
   }
 }

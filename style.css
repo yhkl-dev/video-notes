@@ -63,3 +63,44 @@
   margin: 0.5rem 0;
   color: #666;
 }
+
+.dark .markdown-preview h1,
+.dark .markdown-preview h2,
+.dark .markdown-preview h3,
+.dark .markdown-preview h4,
+.dark .markdown-preview h5,
+.dark .markdown-preview h6 {
+  color: #e5e7eb;
+}
+
+.dark .markdown-preview pre {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+.dark .markdown-preview code {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+.dark .markdown-preview blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
+.dark .markdown-preview a.timestamp-link {
+  color: #60a5fa;
+}
+
+.dark .markdown-preview a.timestamp-link:hover {
+  color: #93c5fd;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
