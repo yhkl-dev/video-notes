@@ -351,7 +351,9 @@ export default function Home({
         }
         return slice
       })
-      localstorage.set(currentVideo.videoURL, updated)
+      localstorage.set(currentVideo.videoURL, updated).catch(() => {
+        // storage quota may be exceeded
+      })
       return updated
     })
   }

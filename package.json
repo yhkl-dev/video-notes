@@ -41,7 +41,8 @@
       "sidepanel",
       "scripting",
       "activeTab",
-      "tabs"
+      "tabs",
+      "unlimitedStorage"
     ]
   }
 }
