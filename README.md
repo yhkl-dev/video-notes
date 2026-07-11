@@ -7,10 +7,12 @@ A Chrome side-panel extension for creating timestamped, annotated segments of an
 ### Video Segment Management
 
 - **Add Segments**: Set start and end times via dropdown selectors, direct text input (`MM:SS` / `HH:MM:SS`), or the interactive timeline bar. Validates time ranges against video duration.
+- **Quick Snap**: `Ctrl+Shift+S` snaps the current playback position as start/end time.
 - **Play / Pause**: Play a segment from its start time. Pause resumes from the current position.
 - **Reset**: Seek back to the segment start time and replay.
 - **Loop Playback**: Per-segment toggle — replay a segment continuously until stopped.
 - **Delete**: Remove individual segments.
+- **Duration Display**: Each segment shows its duration (e.g. `1m 22s`).
 
 ### Notes (Markdown)
 
@@ -50,15 +52,17 @@ A Chrome side-panel extension for creating timestamped, annotated segments of an
 |-----|--------|
 | `Space` | Play / Pause current segment |
 | `←` / `→` | Seek backward / forward 5 seconds |
+| `Ctrl+Shift+S` | Snap current playback time as start/end |
 | `Ctrl+Z` / `Cmd+Z` | Undo (delete, merge, import) |
 | `Ctrl+Shift+Z` | Redo |
+| `?` | Show all shortcuts |
 
-Press `?` in the toolbar to view all shortcuts.
+Press the `? Shortcuts` button in the toolbar to view all shortcuts.
 
 ### Undo / Redo
 
 - 50-entry undo stack covering delete, merge, and import operations.
-- Keyboard shortcuts or UI buttons.
+- Keyboard shortcuts.
 
 ### History
 
@@ -91,11 +95,12 @@ Press `?` in the toolbar to view all shortcuts.
 
 | Permission | Purpose |
 |-----------|---------|
-| `sidepanel` | Side panel UI |
+| `sidePanel` | Side panel UI |
 | `scripting` | Inject playback control and video detection into pages |
 | `activeTab` | Interact with the current tab's video |
 | `tabs` | Open and switch between video tabs from history |
 | `storage` | Persist segments and video history |
+| `unlimitedStorage` | Store screenshot images |
 | `<all_urls>` | Detect videos on any website |
 
 ## Tech Stack
