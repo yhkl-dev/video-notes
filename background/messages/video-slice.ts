@@ -30,8 +30,15 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
         }
         ;(video as any).__vnSliceHandler = onTimeUpdate
         video.addEventListener("timeupdate", onTimeUpdate)
-        video.currentTime = startTime
-        video.play()
+        const doPlay = () => {
+          video.currentTime = startTime
+          video.play()
+        }
+        if (video.readyState < 1) {
+          video.addEventListener("loadedmetadata", doPlay, { once: true })
+        } else {
+          doPlay()
+        }
       },
       args: [req.body.startTime, req.body.endTime, req.body.loop || false]
     })

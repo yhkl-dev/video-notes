@@ -591,10 +591,12 @@ export default function Home({
           return
         }
         const imported = data.map((item) => normalizeSlice(item))
+        const existingIds = new Set(videoSlicesRef.current.map((s) => s.id))
+        const newCount = imported.filter((s) => !existingIds.has(s.id)).length
         pushUndo(videoSlicesRef.current)
         setVideoSlices((current) => {
-          const existingIds = new Set(current.map((s) => s.id))
-          const newSlices = imported.filter((s) => !existingIds.has(s.id))
+          const currentIds = new Set(current.map((s) => s.id))
+          const newSlices = imported.filter((s) => !currentIds.has(s.id))
           const merged = [...current, ...newSlices]
           localstorage.set(currentVideo.videoURL, merged)
           return merged
@@ -602,7 +604,7 @@ export default function Home({
         addToast(
           chrome.i18n
             .getMessage("successImported")
-            .replace("{count}", String(imported.length)),
+            .replace("{count}", String(newCount)),
           "success"
         )
       } catch {
@@ -622,7 +624,7 @@ export default function Home({
       })
       if (res?.dataUrl) {
         appendToSliceNote(id, `![Screenshot](${res.dataUrl})`)
-        addToast("Screenshot captured", "success")
+        addToast(chrome.i18n.getMessage("successCapture"), "success")
       } else {
         addToast(chrome.i18n.getMessage("errorCaptureFailed"), "error")
       }
@@ -892,6 +894,10 @@ export default function Home({
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && e.shiftKey) {
         e.preventDefault()
         actionRefs.current.redo()
+      }
+      if (e.key === "?") {
+        e.preventDefault()
+        setShowShortcuts(true)
       }
     }
     window.addEventListener("keydown", handleKeyDown)

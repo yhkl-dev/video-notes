@@ -306,5 +306,9 @@
   "errorCaptureFailed": {
     "message": "Failed to capture frame",
     "description": "error when screenshot capture fails"
+  },
+  "successCapture": {
+    "message": "Screenshot captured",
+    "description": "success when screenshot is captured"
   }
 }

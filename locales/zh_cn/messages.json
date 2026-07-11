@@ -306,5 +306,9 @@
   "errorCaptureFailed": {
     "message": "截图失败",
     "description": "error when screenshot capture fails"
+  },
+  "successCapture": {
+    "message": "截图成功",
+    "description": "success when screenshot is captured"
   }
 }

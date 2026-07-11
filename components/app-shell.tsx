@@ -70,8 +70,8 @@ export default function AppShell() {
   }
 
   const setToLocalStorage = async (res: VideoResult) => {
-    const existingVideos: VideoResult[] = await localstorage.get("videoInfos")
-    const videoInfos = existingVideos ? existingVideos : []
+    const stored = await localstorage.get("videoInfos")
+    const videoInfos: VideoResult[] = Array.isArray(stored) ? stored : []
 
     if (!videoInfos.some((video) => video.videoURL === res.videoURL)) {
       videoInfos.push(res)
@@ -82,12 +82,16 @@ export default function AppShell() {
   const refresh = useCallback(() => {
     sendToBackground({
       name: "get-video-info"
-    }).then((res) => {
-      setCurrentVideo(res)
-      if (res.video) {
-        setToLocalStorage(res)
-      }
     })
+      .then((res) => {
+        setCurrentVideo(res)
+        if (res.video) {
+          setToLocalStorage(res)
+        }
+      })
+      .catch(() => {
+        // tab may have been closed or message failed
+      })
   }, [])
 
   useEffect(() => {

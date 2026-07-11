@@ -31,7 +31,13 @@ const handler: PlasmoMessaging.MessageHandler<RequestBody> = async (req) => {
           ;(video as any).__vnLoopHandler = onTimeUpdate
           video.addEventListener("timeupdate", onTimeUpdate)
         }
-        video.currentTime = startTime
+        if (
+          loop ||
+          video.currentTime < startTime ||
+          video.currentTime > endTime
+        ) {
+          video.currentTime = startTime
+        }
         video.play()
       },
       args: [

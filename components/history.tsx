@@ -74,9 +74,9 @@ export default function History({
   return (
     <div>
       <ul className="mb-4">
-        {existingVideos.map((existingVideo, index) => (
+        {existingVideos.map((existingVideo) => (
           <li
-            key={index}
+            key={existingVideo.videoURL}
             className="flex bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 p-3.5 mb-2 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-sm justify-between items-center rounded-xl transition-all duration-200 cursor-pointer">
             <a
               href={existingVideo.videoURL}
