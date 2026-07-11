@@ -70,6 +70,7 @@ export default function Home({
   const [undoStack, setUndoStack] = useState<VideoSlice[][]>([])
   const [redoStack, setRedoStack] = useState<VideoSlice[][]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const imageCache = useRef<Map<string, string>>(new Map())
   const videoSlicesRef = useRef<VideoSlice[]>(videoSlices)
   videoSlicesRef.current = videoSlices
   const actionRefs = useRef<{
@@ -625,7 +626,9 @@ export default function Home({
         body: { tabId: currentVideo.tabId }
       })
       if (res?.dataUrl) {
-        appendToSliceNote(id, `![Screenshot](${res.dataUrl})`)
+        const imgKey = `img_${id}_${Date.now()}`
+        await chrome.storage.local.set({ [imgKey]: res.dataUrl })
+        appendToSliceNote(id, `![Screenshot](__VN_IMG__${imgKey})`)
         addToast(chrome.i18n.getMessage("successCapture"), "success")
       } else {
         addToast(chrome.i18n.getMessage("errorCaptureFailed"), "error")
@@ -702,7 +705,28 @@ export default function Home({
   }
 
   const renderMarkdown = (text: string) => {
-    const { processed, timestamps } = extractTimestamps(text)
+    const imgPrefix = "__VN_IMG__"
+    const imgRegex = new RegExp(
+      `\\[([^\\]]*)\\]\\(${imgPrefix}(img_[^)]+)\\)`,
+      "g"
+    )
+    const replacements: Array<{ from: string; to: string }> = []
+    let match: RegExpExecArray | null
+    while ((match = imgRegex.exec(text)) !== null) {
+      const imgKey = match[2]
+      const dataUrl = imageCache.current.get(imgKey)
+      if (dataUrl) {
+        replacements.push({
+          from: `[${match[1]}](${imgPrefix}${imgKey})`,
+          to: `[${match[1]}](${dataUrl})`
+        })
+      }
+    }
+    let resolved = text
+    for (const { from, to } of replacements) {
+      resolved = resolved.replace(from, to)
+    }
+    const { processed, timestamps } = extractTimestamps(resolved)
     const raw = DOMPurify.sanitize(
       marked.parse(processed, { async: false }) as string
     )
@@ -913,6 +937,22 @@ export default function Home({
         const normalized = res.map((slice) => normalizeSlice(slice))
         setVideoSlices(normalized)
         setSelectedIds(new Set())
+        const imgKeys = new Set<string>()
+        const imgRegex = /__VN_IMG__(img_[^)]+)/g
+        for (const slice of normalized) {
+          let m: RegExpExecArray | null
+          while ((m = imgRegex.exec(slice.note)) !== null) {
+            imgKeys.add(m[1])
+          }
+        }
+        if (imgKeys.size > 0) {
+          const stored = await chrome.storage.local.get(Array.from(imgKeys))
+          for (const [key, value] of Object.entries(stored)) {
+            if (typeof value === "string") {
+              imageCache.current.set(key, value)
+            }
+          }
+        }
         const needsSave = res.some(
           (slice) => !slice.id || !slice.createdAt || !slice.tags
         )
