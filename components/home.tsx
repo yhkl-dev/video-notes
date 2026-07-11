@@ -1113,13 +1113,21 @@ export default function Home({
             duration={currentVideo.video?.duration || 0}
             startSeconds={timeToSeconds(startHour, startMinute, startSecond)}
             endSeconds={timeToSeconds(endHour, endMinute, endSecond)}
+<<<<<<< HEAD
+=======
+            settingEnd={settingEnd}
+>>>>>>> a3e5ea7 (refactor: extract ShortcutsModal, CoverageBar, TimelineBar from home.tsx)
             startLabel={formatTimeInput(
               timeToSeconds(startHour, startMinute, startSecond)
             )}
             endLabel={formatTimeInput(
               timeToSeconds(endHour, endMinute, endSecond)
             )}
+<<<<<<< HEAD
             hintText=""
+=======
+            hintText={settingEnd ? "click to set end" : "click to set start"}
+>>>>>>> a3e5ea7 (refactor: extract ShortcutsModal, CoverageBar, TimelineBar from home.tsx)
             onClick={(seconds) => {
               if (settingEnd) {
                 const startSec = timeToSeconds(
