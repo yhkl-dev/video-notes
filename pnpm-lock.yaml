@@ -37,8 +37,8 @@ importers:
         specifier: 4.7.1
         version: 4.7.1(@vue/compiler-sfc@3.3.4)(prettier@3.9.5)
       '@types/chrome':
-        specifier: 0.2.2
-        version: 0.2.2
+        specifier: 0.0.302
+        version: 0.0.302
       '@types/node':
         specifier: 26.1.1
         version: 26.1.1
@@ -1676,8 +1676,8 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@types/chrome@0.2.2':
-    resolution: {integrity: sha512-8rSMZ4cvo2xmaSyQg0sN5yRL7oiDkntLoiHxUhfwQnv1mvnkrdoZ25SlNrKWmYKaeP50WvrfWj1pmc02+U9KKw==}
+  '@types/chrome@0.0.302':
+    resolution: {integrity: sha512-X0mebsL578e3F1vmPGbdOKVZKROTJaQmweDl8KDxTHuU5Buur/b0Ly0ihmOYDC2kxNXvVEklXIhy5ogjHA+j9w==}
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
@@ -5220,7 +5220,7 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@types/chrome@0.2.2':
+  '@types/chrome@0.0.302':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
