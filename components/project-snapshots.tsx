@@ -69,7 +69,7 @@ export default function ProjectSnapshots({
     <div className="relative">
       <div className="flex items-center gap-0.5">
         <button
-          className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           onClick={() => setShowList(!showList)}
           title={`Snapshots (${snapshots.length})`}>
           <svg
@@ -92,7 +92,7 @@ export default function ProjectSnapshots({
         </button>
         {videoSlices.length > 0 && (
           <button
-            className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             onClick={() => setShowSave(!showSave)}
             title="Save snapshot">
             <svg
