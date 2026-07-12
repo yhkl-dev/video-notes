@@ -2,10 +2,23 @@ const FILE_NAME = "video-notes-backup.json"
 const DRIVE_FILES_URL = "https://www.googleapis.com/drive/v3/files"
 const DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files"
 
-async function getToken(): Promise<string | null> {
+async function getToken(interactive = false): Promise<string | null> {
   try {
-    const result = await chrome.identity.getAuthToken({ interactive: true })
+    const result = await chrome.identity.getAuthToken({ interactive })
     return result.token || null
+  } catch {
+    return null
+  }
+}
+
+async function getUserEmail(token: string): Promise<string | null> {
+  try {
+    const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.email || null
   } catch {
     return null
   }
@@ -56,10 +69,7 @@ export async function uploadBackup(
       "metadata",
       new Blob([JSON.stringify(metadata)], { type: "application/json" })
     )
-    form.append(
-      "file",
-      new Blob([jsonData], { type: "application/json" })
-    )
+    form.append("file", new Blob([jsonData], { type: "application/json" }))
     const res = await fetch(`${DRIVE_UPLOAD_URL}?uploadType=multipart`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -97,14 +107,21 @@ export async function downloadBackup(): Promise<{
 
 export async function getSyncStatus(): Promise<{
   lastModified?: string
+  email?: string
   error?: string
 }> {
   const token = await getToken()
-  if (!token) return { error: "Auth failed" }
+  if (!token) return { error: "Not authenticated" }
 
   try {
-    const existing = await findExistingFile(token)
-    return existing ? { lastModified: existing.modifiedTime } : {}
+    const [existing, email] = await Promise.all([
+      findExistingFile(token),
+      getUserEmail(token)
+    ])
+    return {
+      lastModified: existing?.modifiedTime,
+      email: email || undefined
+    }
   } catch (e: any) {
     return { error: e.message }
   }
@@ -114,9 +131,7 @@ export async function signOut(): Promise<void> {
   try {
     const token = await getToken()
     if (token) {
-      await fetch(
-        `https://accounts.google.com/o/oauth2/revoke?token=${token}`
-      )
+      await fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
     }
   } catch {
     // ignore
