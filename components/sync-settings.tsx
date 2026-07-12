@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
+import { normalizeVideoURL } from "~components/utils"
+
 type SyncStatus = "disconnected" | "connected" | "syncing" | "error"
 
 export default function SyncSettings({
@@ -120,13 +122,48 @@ export default function SyncSettings({
       if (res?.data) {
         setProgress("Restoring data...")
         const parsed = JSON.parse(res.data)
-        const entries = Object.entries(parsed)
-        console.log(
-          "[SyncSettings] restore: writing",
-          entries.length,
-          "keys:",
-          Object.keys(parsed)
-        )
+        const data = parsed.data || parsed
+        for (const [key, value] of Object.entries(data)) {
+          await chrome.storage.local.set({ [key]: value })
+        }
+        const merged: Record<string, any> = {}
+        if (Array.isArray(data.videoInfos)) {
+          merged.videoInfos = data.videoInfos.map((v: any) => ({
+            ...v,
+            videoURL: normalizeVideoURL(v.videoURL)
+          }))
+        }
+        for (const [key, value] of Object.entries(data)) {
+          if (
+            key === "videoInfos" ||
+            key === "vn_snapshots" ||
+            key.startsWith("vn_img_")
+          ) {
+            merged[key] = value
+            continue
+          }
+          try {
+            new URL(key)
+            const normalized = normalizeVideoURL(key)
+            if (merged[normalized]) {
+              const existing = merged[normalized]
+              const mergedSlices = [...existing]
+              for (const slice of value as any[]) {
+                if (!existing.some((s: any) => s.id === slice.id)) {
+                  mergedSlices.push(slice)
+                }
+              }
+              merged[normalized] = mergedSlices
+            } else {
+              merged[normalized] = value
+            }
+          } catch {
+            merged[key] = value
+          }
+        }
+        const entries = Object.entries(merged)
+        console.log("[SyncSettings] restore: writing", entries.length, "keys")
+        await chrome.storage.local.clear()
         for (const [key, value] of entries) {
           await chrome.storage.local.set({ [key]: value })
         }
