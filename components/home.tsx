@@ -1649,7 +1649,7 @@ export default function Home({
                   />
                 </div>
               </div>
-              <SyncSettings />
+              <SyncSettings onRefresh={refresh} />
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
               <div className="relative group">
                 <button

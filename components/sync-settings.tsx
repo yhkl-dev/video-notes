@@ -4,7 +4,11 @@ import { sendToBackground } from "@plasmohq/messaging"
 
 type SyncStatus = "disconnected" | "connected" | "syncing" | "error"
 
-export default function SyncSettings() {
+export default function SyncSettings({
+  onRefresh
+}: {
+  onRefresh?: () => void
+}) {
   const [open, setOpen] = useState(false)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("disconnected")
   const [lastSync, setLastSync] = useState<string | null>(
@@ -54,7 +58,9 @@ export default function SyncSettings() {
       } else {
         setSyncStatus("error")
         setProgress("")
-        setMessage(res?.error || "Auth failed. Check your Google Cloud Console setup.")
+        setMessage(
+          res?.error || "Auth failed. Check your Google Cloud Console setup."
+        )
       }
     } catch {
       setSyncStatus("error")
@@ -120,8 +126,11 @@ export default function SyncSettings() {
         setLastSync(now)
         setSyncStatus("connected")
         setProgress("")
-        setMessage("Restored from Drive. Reloading...")
-        setTimeout(() => window.location.reload(), 1200)
+        setMessage("Restored from Drive")
+        setTimeout(() => {
+          onRefresh?.()
+          setOpen(false)
+        }, 800)
       } else {
         setSyncStatus("error")
         setProgress("")
