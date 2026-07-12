@@ -20,11 +20,13 @@
 3. App name: Video Notes
 4. User support email: your email
 5. Developer contact: your email
-6. Save and Continue
-7. Add scope: https://www.googleapis.com/auth/drive.appdata
-8. Save and Continue
-9. Add test users (your email)
-10. Save and Continue
+6. Click **Save and Continue**
+7. On the **Scopes** page, click **Add or Remove Scopes**
+8. In the search box, enter: `https://www.googleapis.com/auth/drive.appdata`
+9. Check the box next to the scope, click **Update**
+10. Click **Save and Continue**
+11. On the **Test users** page, click **Add Users**, enter your email
+12. Click **Save and Continue**
 
 ## Step 4: Get Extension ID
 
