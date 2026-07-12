@@ -27,13 +27,23 @@ async function getUserEmail(token: string): Promise<string | null> {
 async function findExistingFile(
   token: string
 ): Promise<{ id: string; modifiedTime: string } | null> {
-  const url = `${DRIVE_FILES_URL}?q=name='${FILE_NAME}'&fields=files(id,modifiedTime)`
+  const url = `${DRIVE_FILES_URL}?q=name='${FILE_NAME}' and trashed=false&fields=files(id,modifiedTime)&orderBy=createdTime`
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   })
   if (!res.ok) return null
   const data = await res.json()
-  return data.files?.[0] || null
+  const files = data.files || []
+  if (files.length > 1) {
+    console.log("[DriveSync] found", files.length, "duplicates, cleaning up")
+    for (let i = 1; i < files.length; i++) {
+      fetch(`${DRIVE_FILES_URL}/${files[i].id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      }).catch(() => {})
+    }
+  }
+  return files[0] || null
 }
 
 export async function uploadBackup(
