@@ -18,9 +18,6 @@ export default function SyncSettings({
   const [lastSync, setLastSync] = useState<string | null>(
     localStorage.getItem("vn_last_sync")
   )
-  const [autoSync, setAutoSync] = useState(
-    localStorage.getItem("vn_auto_sync") !== "false"
-  )
   const [message, setMessage] = useState("")
   const [email, setEmail] = useState<string | null>(null)
   const [progress, setProgress] = useState("")
@@ -214,12 +211,6 @@ export default function SyncSettings({
     setMessage("Disconnected from Google Drive")
   }
 
-  const toggleAutoSync = () => {
-    const next = !autoSync
-    setAutoSync(next)
-    localStorage.setItem("vn_auto_sync", String(next))
-  }
-
   const iconColor = {
     disconnected: "text-gray-400",
     connected: "text-green-500",
@@ -330,15 +321,6 @@ export default function SyncSettings({
                   Restore
                 </button>
               </div>
-
-              <label className="flex items-center justify-between py-1 text-[11px] text-gray-500 dark:text-gray-400 cursor-pointer">
-                <span>Auto-sync on changes</span>
-                <input
-                  type="checkbox"
-                  checked={autoSync}
-                  onChange={toggleAutoSync}
-                />
-              </label>
 
               <button
                 className="w-full py-1.5 text-[11px] text-red-400 hover:text-red-500 rounded-md transition-colors"

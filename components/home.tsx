@@ -1032,19 +1032,6 @@ export default function Home({
   }, [currentVideo.tabId, settingEnd, startHour, startMinute, startSecond])
 
   useEffect(() => {
-    if (videoSlices.length === 0) return
-    const autoSync = localStorage.getItem("vn_auto_sync")
-    if (autoSync === "false") return
-    const timer = setTimeout(() => {
-      sendToBackground({
-        name: "drive-sync",
-        body: { action: "upload" }
-      }).catch(() => {})
-    }, 3000)
-    return () => clearTimeout(timer)
-  }, [videoSlices])
-
-  useEffect(() => {
     const getCurrentVideoSlice = async (currentVideo: VideoResult) => {
       const res: VideoSlice[] = await localstorage.get(currentVideo.videoURL)
       if (res) {
