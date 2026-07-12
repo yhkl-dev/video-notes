@@ -39,13 +39,16 @@ async function findExistingFile(
 export async function uploadBackup(
   jsonData: string
 ): Promise<{ success: boolean; error?: string }> {
+  console.log("[DriveSync] uploadBackup start, data length:", jsonData.length)
   const token = await getToken(true)
-  if (!token) return { success: false, error: "Auth failed" }
+  if (!token) {
+    console.log("[DriveSync] uploadBackup: no token")
+    return { success: false, error: "Auth failed" }
+  }
 
   try {
     const existing = await findExistingFile(token)
-
-    if (existing) {
+    console.log("[DriveSync] existing file:", existing?.id || "none")
       const res = await fetch(
         `${DRIVE_UPLOAD_URL}/${existing.id}?uploadType=media`,
         {
@@ -57,6 +60,7 @@ export async function uploadBackup(
           body: jsonData
         }
       )
+      console.log("[DriveSync] PATCH result:", res.status)
       return { success: res.ok }
     }
 
@@ -74,6 +78,7 @@ export async function uploadBackup(
       headers: { Authorization: `Bearer ${token}` },
       body: form
     })
+    console.log("[DriveSync] create result:", res.status)
     return { success: res.ok }
   } catch (e: any) {
     return { success: false, error: e.message }
@@ -90,14 +95,17 @@ export async function downloadBackup(): Promise<{
 
   try {
     const existing = await findExistingFile(token)
+    console.log("[DriveSync] downloadBackup: found file?", !!existing)
     if (!existing) return { data: null }
 
     const res = await fetch(`${DRIVE_FILES_URL}/${existing.id}?alt=media`, {
       headers: { Authorization: `Bearer ${token}` }
     })
+    console.log("[DriveSync] download result:", res.status)
     if (!res.ok) return { data: null, error: `Download failed: ${res.status}` }
 
     const data = await res.text()
+    console.log("[DriveSync] downloaded data length:", data.length)
     return { data, modifiedTime: existing.modifiedTime }
   } catch (e: any) {
     return { data: null, error: e.message }

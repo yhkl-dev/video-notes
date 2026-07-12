@@ -119,9 +119,21 @@ export default function SyncSettings({
         setProgress("Restoring data...")
         const parsed = JSON.parse(res.data)
         const entries = Object.entries(parsed)
+        console.log(
+          "[SyncSettings] restore: writing",
+          entries.length,
+          "keys:",
+          Object.keys(parsed)
+        )
         for (const [key, value] of entries) {
           await chrome.storage.local.set({ [key]: value })
         }
+        const verify = await chrome.storage.local.get(null)
+        console.log(
+          "[SyncSettings] restore: storage now has",
+          Object.keys(verify).length,
+          "keys"
+        )
         const now = new Date().toISOString()
         localStorage.setItem("vn_last_sync", now)
         setLastSync(now)
