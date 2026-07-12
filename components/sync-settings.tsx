@@ -15,26 +15,30 @@ export default function SyncSettings() {
   )
   const [message, setMessage] = useState("")
   const [email, setEmail] = useState<string | null>(null)
+  const [progress, setProgress] = useState("")
 
   useEffect(() => {
     if (!open) return
-    setSyncStatus("syncing")
+    setProgress("Checking Drive...")
     sendToBackground({ name: "drive-sync", body: { action: "status" } })
       .then((res: any) => {
         if (res?.email) setEmail(res.email)
         if (res?.lastModified) setLastSync(res.lastModified)
         setSyncStatus(res?.error ? "error" : "connected")
+        setProgress("")
         if (res?.error) setMessage(res.error)
       })
       .catch(() => {
         setSyncStatus("error")
         setMessage("Connection failed")
+        setProgress("")
       })
   }, [open])
 
   const handleConnect = async () => {
     setSyncStatus("syncing")
     setMessage("")
+    setProgress("Authenticating with Google...")
     try {
       const res = await sendToBackground({
         name: "drive-sync",
@@ -45,13 +49,16 @@ export default function SyncSettings() {
         localStorage.setItem("vn_last_sync", now)
         setLastSync(now)
         setSyncStatus("connected")
-        setMessage("Connected and synced")
+        setProgress("")
+        setMessage("Connected! Data saved to your Google Drive.")
       } else {
         setSyncStatus("error")
-        setMessage(res?.error || "Auth failed")
+        setProgress("")
+        setMessage(res?.error || "Auth failed. Check your Google Cloud Console setup.")
       }
     } catch {
       setSyncStatus("error")
+      setProgress("")
       setMessage("Network error")
     }
   }
@@ -59,7 +66,10 @@ export default function SyncSettings() {
   const handleSync = async () => {
     setSyncStatus("syncing")
     setMessage("")
+    setProgress("Collecting data...")
     try {
+      await new Promise((r) => setTimeout(r, 200))
+      setProgress("Uploading to Google Drive...")
       const res = await sendToBackground({
         name: "drive-sync",
         body: { action: "upload" }
@@ -69,28 +79,38 @@ export default function SyncSettings() {
         localStorage.setItem("vn_last_sync", now)
         setLastSync(now)
         setSyncStatus("connected")
-        setMessage("Synced")
-        setTimeout(() => setMessage(""), 2000)
+        setProgress("")
+        setMessage("Synced to Google Drive")
+        setTimeout(() => setMessage(""), 3000)
       } else {
         setSyncStatus("error")
+        setProgress("")
         setMessage(res?.error || "Sync failed")
       }
     } catch {
       setSyncStatus("error")
+      setProgress("")
       setMessage("Network error")
     }
   }
 
   const handleRestore = async () => {
-    if (!confirm("This will replace all local data with the cloud backup. Continue?")) return
+    if (
+      !confirm(
+        "This will replace all local data with the cloud backup. Continue?"
+      )
+    )
+      return
     setSyncStatus("syncing")
     setMessage("")
+    setProgress("Downloading from Google Drive...")
     try {
       const res = await sendToBackground({
         name: "drive-sync",
         body: { action: "download" }
       })
       if (res?.data) {
+        setProgress("Restoring data...")
         const parsed = JSON.parse(res.data)
         for (const [key, value] of Object.entries(parsed)) {
           await chrome.storage.local.set({ [key]: value })
@@ -99,14 +119,17 @@ export default function SyncSettings() {
         localStorage.setItem("vn_last_sync", now)
         setLastSync(now)
         setSyncStatus("connected")
-        setMessage("Restored. Reloading...")
+        setProgress("")
+        setMessage("Restored from Drive. Reloading...")
         setTimeout(() => window.location.reload(), 1200)
       } else {
         setSyncStatus("error")
-        setMessage(res?.error || "No backup found in Drive")
+        setProgress("")
+        setMessage(res?.error || "No backup found in Google Drive")
       }
     } catch {
       setSyncStatus("error")
+      setProgress("")
       setMessage("Restore failed")
     }
   }
@@ -120,7 +143,7 @@ export default function SyncSettings() {
     setLastSync(null)
     setEmail(null)
     setSyncStatus("disconnected")
-    setMessage("Disconnected")
+    setMessage("Disconnected from Google Drive")
   }
 
   const toggleAutoSync = () => {
@@ -132,8 +155,15 @@ export default function SyncSettings() {
   const iconColor = {
     disconnected: "text-gray-400",
     connected: "text-green-500",
-    syncing: "text-amber-500 animate-spin",
+    syncing: "text-amber-500",
     error: "text-red-500"
+  }[syncStatus]
+
+  const statusColor = {
+    disconnected: "bg-gray-300",
+    connected: "bg-green-500",
+    syncing: "bg-amber-500 animate-pulse",
+    error: "bg-red-500"
   }[syncStatus]
 
   const formatTime = (iso: string | null) => {
@@ -151,10 +181,12 @@ export default function SyncSettings() {
         className={`p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${iconColor}`}
         onClick={() => setOpen(!open)}
         data-tooltip={
-          syncStatus === "connected" ? `Synced ${formatTime(lastSync)}` : "Drive Sync"
+          syncStatus === "connected"
+            ? `Synced ${formatTime(lastSync)}`
+            : "Drive Sync"
         }>
         <svg
-          className="w-4 h-4"
+          className={`w-4 h-4 ${syncStatus === "syncing" ? "animate-spin" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24">
@@ -169,45 +201,52 @@ export default function SyncSettings() {
 
       {open && (
         <div
-          className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 z-40 w-60"
+          className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 z-40 w-64"
           onClick={(e) => e.stopPropagation()}>
-          <h3 className="text-sm font-semibold dark:text-white mb-1">
-            Google Drive Sync
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold dark:text-white">
+              Google Drive
+            </h3>
+            <span className={`w-2.5 h-2.5 rounded-full ${statusColor}`} />
+          </div>
 
           {syncStatus === "disconnected" && (
-            <div className="mt-2">
+            <div>
               <p className="text-[11px] text-gray-400 mb-3">
-                Sync your notes across devices via Google Drive.
+                Back up your data to Google Drive. Access from any device.
               </p>
               <button
                 className="w-full py-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
                 onClick={handleConnect}>
-                Connect Google Drive
+                Connect to Google Drive
               </button>
             </div>
           )}
 
           {syncStatus !== "disconnected" && (
-            <div className="mt-2 space-y-2">
+            <div className="space-y-2">
               {email && (
-                <p className="text-[10px] text-gray-400 truncate">{email}</p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                  {email}
+                </p>
               )}
-              <div className="flex items-center justify-between text-[11px] text-gray-500 dark:text-gray-400">
-                <span>
-                  {syncStatus === "syncing"
-                    ? "Syncing..."
-                    : `Last sync: ${formatTime(lastSync)}`}
-                </span>
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    syncStatus === "connected"
-                      ? "bg-green-500"
-                      : syncStatus === "syncing"
-                        ? "bg-amber-500 animate-pulse"
-                        : "bg-red-500"
-                  }`}
-                />
+
+              {progress && (
+                <div className="py-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[11px] text-blue-500">
+                      {progress}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1 overflow-hidden">
+                    <div className="bg-blue-500 h-1 rounded-full animate-pulse w-2/3" />
+                  </div>
+                </div>
+              )}
+
+              <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                Last sync: {formatTime(lastSync)}
               </div>
 
               <div className="flex gap-1">
@@ -225,7 +264,7 @@ export default function SyncSettings() {
               </div>
 
               <label className="flex items-center justify-between py-1 text-[11px] text-gray-500 dark:text-gray-400 cursor-pointer">
-                <span>Auto-sync</span>
+                <span>Auto-sync on changes</span>
                 <input
                   type="checkbox"
                   checked={autoSync}
@@ -242,7 +281,9 @@ export default function SyncSettings() {
           )}
 
           {message && (
-            <p className="text-[10px] text-gray-400 mt-2">{message}</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-2">
+              {message}
+            </p>
           )}
         </div>
       )}
