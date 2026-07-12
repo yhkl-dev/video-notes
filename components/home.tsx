@@ -1409,7 +1409,7 @@ export default function Home({
                   className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   onClick={selectAllVisible}
                   type="button"
-                  title="Select all">
+                  data-tooltip="Select all">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -1427,7 +1427,7 @@ export default function Home({
                   className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   onClick={clearSelection}
                   type="button"
-                  title="Clear selection">
+                  data-tooltip="Clear">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -1486,7 +1486,7 @@ export default function Home({
                       setOpenMenu(openMenu === "export" ? null : "export")
                     }}
                     type="button"
-                    title="Export">
+                    data-tooltip="Export">
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -1537,7 +1537,7 @@ export default function Home({
                       setOpenMenu(openMenu === "import" ? null : "import")
                     }}
                     type="button"
-                    title="Import">
+                    data-tooltip="Import">
                     <svg
                       className="w-4 h-4"
                       fill="none"
@@ -1583,7 +1583,7 @@ export default function Home({
                   className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   onClick={handleMergeSelected}
                   type="button"
-                  title={chrome.i18n.getMessage("mergeSelected")}>
+                  data-tooltip={chrome.i18n.getMessage("mergeSelected")}>
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -1605,7 +1605,7 @@ export default function Home({
                       setOpenMenu(openMenu === "backup" ? null : "backup")
                     }}
                     type="button"
-                    title="Backup/Restore">
+                    data-tooltip="Backup">
                     <svg
                       className="w-4 h-4"
                       fill="none"

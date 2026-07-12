@@ -71,7 +71,7 @@ export default function ProjectSnapshots({
         <button
           className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           onClick={() => setShowList(!showList)}
-          title={`Snapshots (${snapshots.length})`}>
+          data-tooltip={`Snapshots (${snapshots.length})`}>
           <svg
             className="w-3.5 h-3.5"
             fill="none"
@@ -94,7 +94,7 @@ export default function ProjectSnapshots({
           <button
             className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             onClick={() => setShowSave(!showSave)}
-            title="Save snapshot">
+            data-tooltip="Save snapshot">
             <svg
               className="w-3.5 h-3.5"
               fill="none"
