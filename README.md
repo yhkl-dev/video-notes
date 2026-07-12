@@ -99,9 +99,11 @@ Press the `? Shortcuts` button in the toolbar to view all shortcuts.
 | `scripting` | Inject playback control and video detection into pages |
 | `activeTab` | Interact with the current tab's video |
 | `tabs` | Open and switch between video tabs from history |
-| `storage` | Persist segments and video history |
+| `storage` * | Persist segments and video history |
 | `unlimitedStorage` | Store screenshot images |
 | `<all_urls>` | Detect videos on any website |
+
+\* `sidePanel` and `storage` are auto-added by Plasmo.
 
 ## Tech Stack
 

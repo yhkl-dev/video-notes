@@ -12,6 +12,9 @@ export default function ShortcutsModal({
       className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
       onClick={onClose}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={chrome.i18n.getMessage("shortcutsTitle")}
         className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4"
         onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
@@ -19,6 +22,8 @@ export default function ShortcutsModal({
             {chrome.i18n.getMessage("shortcutsTitle")}
           </h3>
           <button
+            type="button"
+            aria-label="Close"
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             onClick={onClose}>
             <svg
@@ -54,6 +59,12 @@ export default function ShortcutsModal({
             </span>
           </div>
           <div className="flex justify-between">
+            <span>Snap time</span>
+            <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
+              Ctrl+Shift+S
+            </kbd>
+          </div>
+          <div className="flex justify-between">
             <span>{chrome.i18n.getMessage("shortcutsUndo")}</span>
             <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
               Ctrl+Z
@@ -65,8 +76,15 @@ export default function ShortcutsModal({
               Ctrl+Shift+Z
             </kbd>
           </div>
+          <div className="flex justify-between">
+            <span>Show shortcuts</span>
+            <kbd className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
+              ?
+            </kbd>
+          </div>
         </div>
         <button
+          type="button"
           className="mt-4 w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm"
           onClick={onClose}>
           {chrome.i18n.getMessage("shortcutsClose")}

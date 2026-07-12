@@ -20,7 +20,6 @@ export default function TimelineBar({
   duration,
   startSeconds,
   endSeconds,
-  settingEnd,
   startLabel,
   endLabel,
   hintText,
@@ -30,7 +29,6 @@ export default function TimelineBar({
   duration: number
   startSeconds: number
   endSeconds: number
-  settingEnd: boolean
   startLabel: string
   endLabel: string
   hintText: string
@@ -55,8 +53,7 @@ export default function TimelineBar({
             const x = e.clientX - rect.left
             const ratio = Math.max(0, Math.min(1, x / rect.width))
             onClick(Math.round(ratio * duration))
-          }}
-          title="">
+          }}>
           {slices.map((slice) => {
             const left = (slice.startTime / dur) * 100
             const width = ((slice.endTime - slice.startTime) / dur) * 100

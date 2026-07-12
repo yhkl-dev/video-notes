@@ -855,7 +855,7 @@ export default function Home({
         e.preventDefault()
         setShowShortcuts(true)
       }
-      if ((e.ctrlKey || e.metaKey) && e.code === "KeyS") {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === "KeyS") {
         e.preventDefault()
         sendToBackground({
           name: "get-current-time",
@@ -1113,7 +1113,6 @@ export default function Home({
             duration={currentVideo.video?.duration || 0}
             startSeconds={timeToSeconds(startHour, startMinute, startSecond)}
             endSeconds={timeToSeconds(endHour, endMinute, endSecond)}
-            settingEnd={settingEnd}
             startLabel={formatTimeInput(
               timeToSeconds(startHour, startMinute, startSecond)
             )}
