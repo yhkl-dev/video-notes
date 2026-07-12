@@ -118,7 +118,8 @@ export default function SyncSettings({
       if (res?.data) {
         setProgress("Restoring data...")
         const parsed = JSON.parse(res.data)
-        for (const [key, value] of Object.entries(parsed)) {
+        const entries = Object.entries(parsed)
+        for (const [key, value] of entries) {
           await chrome.storage.local.set({ [key]: value })
         }
         const now = new Date().toISOString()
@@ -126,10 +127,10 @@ export default function SyncSettings({
         setLastSync(now)
         setSyncStatus("connected")
         setProgress("")
-        setMessage("Restored from Drive")
+        setMessage(`Restored ${entries.length} items from Drive`)
         setTimeout(() => {
-          onRefresh?.()
           setOpen(false)
+          onRefresh?.()
         }, 800)
       } else {
         setSyncStatus("error")
