@@ -7,6 +7,7 @@ import { Storage } from "@plasmohq/storage"
 import History from "~components/history"
 import Home from "~components/home"
 import { ToastProvider } from "~components/toast"
+import { normalizeVideoURL } from "~components/utils"
 import type { VideoResult } from "~types"
 
 import "~style.css"
@@ -84,9 +85,13 @@ export default function AppShell() {
       name: "get-video-info"
     })
       .then((res) => {
-        setCurrentVideo(res)
+        const normalized = {
+          ...res,
+          videoURL: normalizeVideoURL(res.videoURL)
+        }
+        setCurrentVideo(normalized)
         if (res.video) {
-          setToLocalStorage(res)
+          setToLocalStorage(normalized)
         }
       })
       .catch(() => {

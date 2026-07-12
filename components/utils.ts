@@ -85,6 +85,19 @@ export function parseTimeInput(value: string): number | null {
   return hours * 3600 + minutes * 60 + seconds
 }
 
+export function normalizeVideoURL(url: string): string {
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+      const videoId = u.searchParams.get("v") || u.pathname.split("/").pop()
+      if (videoId) return `https://www.youtube.com/watch?v=${videoId}`
+    }
+    return u.origin + u.pathname
+  } catch {
+    return url
+  }
+}
+
 export function normalizeSlice(slice: Partial<VideoSlice>): VideoSlice {
   return {
     id: slice.id || createId(),
