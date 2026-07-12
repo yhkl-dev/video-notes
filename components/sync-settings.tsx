@@ -5,9 +5,11 @@ import { sendToBackground } from "@plasmohq/messaging"
 type SyncStatus = "disconnected" | "connected" | "syncing" | "error"
 
 export default function SyncSettings({
-  onRefresh
+  onRefresh,
+  onRestore
 }: {
   onRefresh?: () => void
+  onRestore?: (videos: Array<{ title: string; url: string }>) => void
 }) {
   const [open, setOpen] = useState(false)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("disconnected")
@@ -128,21 +130,28 @@ export default function SyncSettings({
         for (const [key, value] of entries) {
           await chrome.storage.local.set({ [key]: value })
         }
-        const verify = await chrome.storage.local.get(null)
-        console.log(
-          "[SyncSettings] restore: storage now has",
-          Object.keys(verify).length,
-          "keys"
-        )
         const now = new Date().toISOString()
         localStorage.setItem("vn_last_sync", now)
         setLastSync(now)
         setSyncStatus("connected")
         setProgress("")
-        setMessage(`Restored ${entries.length} items from Drive`)
+        const videoInfos = parsed.data?.videoInfos || parsed.videoInfos || []
+        const videoList = Array.isArray(videoInfos)
+          ? videoInfos.map((v: any) => ({
+              title: v.tabTitle || v.videoURL,
+              url: v.videoURL
+            }))
+          : []
+        setMessage(
+          `Restored ${entries.length} items, ${videoList.length} videos`
+        )
         setTimeout(() => {
           setOpen(false)
-          onRefresh?.()
+          if (videoList.length > 0) {
+            onRestore?.(videoList)
+          } else {
+            onRefresh?.()
+          }
         }, 800)
       } else {
         setSyncStatus("error")

@@ -1662,7 +1662,15 @@ export default function Home({
                   />
                 </div>
               </div>
-              <SyncSettings onRefresh={refresh} />
+              <SyncSettings
+                onRefresh={refresh}
+                onRestore={(videos) => {
+                  addToast(
+                    `Restored ${videos.length} videos. Switch to History tab.`,
+                    "success"
+                  )
+                }}
+              />
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
               <div className="relative group">
                 <button
