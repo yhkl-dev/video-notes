@@ -27,7 +27,7 @@ async function getUserEmail(token: string): Promise<string | null> {
 async function findExistingFile(
   token: string
 ): Promise<{ id: string; modifiedTime: string } | null> {
-  const url = `${DRIVE_FILES_URL}?q=name='${FILE_NAME}'&spaces=appDataFolder&fields=files(id,modifiedTime)`
+  const url = `${DRIVE_FILES_URL}?q=name='${FILE_NAME}'&fields=files(id,modifiedTime)`
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
   })
@@ -61,8 +61,7 @@ export async function uploadBackup(
     }
 
     const metadata = {
-      name: FILE_NAME,
-      parents: ["appDataFolder"]
+      name: FILE_NAME
     }
     const form = new FormData()
     form.append(

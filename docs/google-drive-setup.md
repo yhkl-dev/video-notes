@@ -23,7 +23,7 @@
    - 开发者联系电子邮件：你的邮箱
 4. 点击 **保存并继续**
 5. 进入 **Data Access** 页面，点击 **Add or Remove Scopes**
-6. 搜索 `drive.appdata`，勾选后点击 **Update**
+6. 搜索 `drive.file`，勾选后点击 **Update**
 7. 勾选该范围，点击 **更新**
 8. 点击 **保存并继续**
 9. 进入 **Test users** 页面（Data Access 保存后的下一页），点击 **Add Users**，输入你的邮箱
@@ -55,7 +55,7 @@
 ```json
 "oauth2": {
   "client_id": "你的客户端ID.apps.googleusercontent.com",
-  "scopes": ["https://www.googleapis.com/auth/drive.appdata"]
+  "scopes": ["https://www.googleapis.com/auth/drive.file"]
 }
 ```
 
