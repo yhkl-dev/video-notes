@@ -1,0 +1,129 @@
+const FILE_NAME = "video-notes-backup.json"
+const DRIVE_FILES_URL = "https://www.googleapis.com/drive/v3/files"
+const DRIVE_UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files"
+
+async function getToken(): Promise<string | null> {
+  try {
+    const result = await chrome.identity.getAuthToken({ interactive: true })
+    return result.token || null
+  } catch {
+    return null
+  }
+}
+
+async function findExistingFile(
+  token: string
+): Promise<{ id: string; modifiedTime: string } | null> {
+  const url = `${DRIVE_FILES_URL}?q=name='${FILE_NAME}'&spaces=appDataFolder&fields=files(id,modifiedTime)`
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  if (!res.ok) return null
+  const data = await res.json()
+  return data.files?.[0] || null
+}
+
+export async function uploadBackup(
+  jsonData: string
+): Promise<{ success: boolean; error?: string }> {
+  const token = await getToken()
+  if (!token) return { success: false, error: "Auth failed" }
+
+  try {
+    const existing = await findExistingFile(token)
+
+    if (existing) {
+      const res = await fetch(
+        `${DRIVE_UPLOAD_URL}/${existing.id}?uploadType=media`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: jsonData
+        }
+      )
+      return { success: res.ok }
+    }
+
+    const metadata = {
+      name: FILE_NAME,
+      parents: ["appDataFolder"]
+    }
+    const form = new FormData()
+    form.append(
+      "metadata",
+      new Blob([JSON.stringify(metadata)], { type: "application/json" })
+    )
+    form.append(
+      "file",
+      new Blob([jsonData], { type: "application/json" })
+    )
+    const res = await fetch(`${DRIVE_UPLOAD_URL}?uploadType=multipart`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form
+    })
+    return { success: res.ok }
+  } catch (e: any) {
+    return { success: false, error: e.message }
+  }
+}
+
+export async function downloadBackup(): Promise<{
+  data: string | null
+  modifiedTime?: string
+  error?: string
+}> {
+  const token = await getToken()
+  if (!token) return { data: null, error: "Auth failed" }
+
+  try {
+    const existing = await findExistingFile(token)
+    if (!existing) return { data: null }
+
+    const res = await fetch(`${DRIVE_FILES_URL}/${existing.id}?alt=media`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    if (!res.ok) return { data: null, error: `Download failed: ${res.status}` }
+
+    const data = await res.text()
+    return { data, modifiedTime: existing.modifiedTime }
+  } catch (e: any) {
+    return { data: null, error: e.message }
+  }
+}
+
+export async function getSyncStatus(): Promise<{
+  lastModified?: string
+  error?: string
+}> {
+  const token = await getToken()
+  if (!token) return { error: "Auth failed" }
+
+  try {
+    const existing = await findExistingFile(token)
+    return existing ? { lastModified: existing.modifiedTime } : {}
+  } catch (e: any) {
+    return { error: e.message }
+  }
+}
+
+export async function signOut(): Promise<void> {
+  try {
+    const token = await getToken()
+    if (token) {
+      await fetch(
+        `https://accounts.google.com/o/oauth2/revoke?token=${token}`
+      )
+    }
+  } catch {
+    // ignore
+  }
+  try {
+    await chrome.identity.clearAllCachedAuthTokens()
+  } catch {
+    // ignore
+  }
+}

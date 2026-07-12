@@ -10,6 +10,7 @@ import CoverageBar from "~components/coverage-bar"
 import ProjectSnapshots from "~components/project-snapshots"
 import ShortcutsModal from "~components/shortcuts-modal"
 import SliceCard from "~components/slice-card"
+import SyncSettings from "~components/sync-settings"
 import TimelineBar from "~components/timeline-bar"
 import { useToast } from "~components/toast"
 import {
@@ -1648,6 +1649,7 @@ export default function Home({
                   />
                 </div>
               </div>
+              <SyncSettings />
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
               <div className="relative group">
                 <button
