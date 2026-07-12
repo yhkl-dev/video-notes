@@ -1,82 +1,88 @@
-# Google Drive Sync Setup Guide
+# Google Drive 同步设置指南
 
-## Step 1: Create a Google Cloud Project
+## 第 1 步：创建 Google Cloud 项目
 
-1. Go to https://console.cloud.google.com/
-2. Click project dropdown > New Project
-3. Name: Video Notes Extension
-4. Click Create
+1. 打开 https://console.cloud.google.com/
+2. 点击顶部项目下拉菜单，选择 **新建项目**
+3. 项目名称：`Video Notes Extension`
+4. 点击 **创建**
 
-## Step 2: Enable Google Drive API
+## 第 2 步：启用 Google Drive API
 
-1. Sidebar > APIs & Services > Library
-2. Search "Google Drive API"
-3. Click Enable
+1. 左侧菜单 > **API 和服务** > **库**
+2. 搜索 `Google Drive API`
+3. 点击 **Google Drive API**，然后点击 **启用**
 
-## Step 3: Configure OAuth Consent Screen
+## 第 3 步：配置 OAuth 同意屏幕
 
-1. APIs & Services > OAuth consent screen
-2. Choose External, click Create
-3. App name: Video Notes
-4. User support email: your email
-5. Developer contact: your email
-6. Click **Save and Continue**
-7. On the **Scopes** page, click **Add or Remove Scopes**
-8. In the search box, enter: `https://www.googleapis.com/auth/drive.appdata`
-9. Check the box next to the scope, click **Update**
-10. Click **Save and Continue**
-11. On the **Test users** page, click **Add Users**, enter your email
-12. Click **Save and Continue**
+1. 左侧菜单 > **API 和服务** > **OAuth 同意屏幕**
+2. 选择 **外部** 用户类型，点击 **创建**
+3. 填写信息：
+   - 应用名称：`Video Notes`
+   - 用户支持电子邮件：你的邮箱
+   - 开发者联系电子邮件：你的邮箱
+4. 点击 **保存并继续**
+5. 进入 **范围** 页面，点击 **添加或移除范围**
+6. 在搜索框中输入：`https://www.googleapis.com/auth/drive.appdata`
+7. 勾选该范围，点击 **更新**
+8. 点击 **保存并继续**
+9. 进入 **测试用户** 页面，点击 **添加用户**，输入你的邮箱
+10. 点击 **保存并继续**
 
-## Step 4: Get Extension ID
+## 第 4 步：获取扩展 ID
 
-1. Run `pnpm build`
-2. Chrome > chrome://extensions > Developer mode ON
-3. Load unpacked > select build/chrome-mv3-prod
-4. Copy the 32-character extension ID
+1. 在项目目录运行 `pnpm build`
+2. 打开 Chrome，地址栏输入 `chrome://extensions`
+3. 开启右上角 **开发者模式**
+4. 点击 **加载已解压的扩展程序**，选择 `build/chrome-mv3-prod` 文件夹
+5. 复制扩展 ID（扩展名称下方 32 位字符串）
 
-## Step 5: Create OAuth Client ID
+## 第 5 步：创建 OAuth 客户端 ID
 
-1. APIs & Services > Credentials > Create Credentials > OAuth client ID
-2. Application type: Chrome Extension
-3. Name: Video Notes
-4. Item ID: paste the extension ID from Step 4
-5. Click Create
-6. Copy the Client ID (looks like 123456789-xxxxx.apps.googleusercontent.com)
+1. 左侧菜单 > **API 和服务** > **凭据**
+2. 点击 **创建凭据** > **OAuth 客户端 ID**
+3. 应用类型选择 **Chrome 扩展程序**
+4. 填写：
+   - 名称：`Video Notes`
+   - 商品 ID：粘贴第 4 步获取的扩展 ID
+5. 点击 **创建**
+6. 复制生成的 **客户端 ID**（格式：`123456789-xxxxx.apps.googleusercontent.com`）
 
-## Step 6: Update package.json
+## 第 6 步：更新 package.json
 
-Replace the placeholder in package.json:
+将 `package.json` 中的占位符替换为真实的客户端 ID：
+
 ```json
 "oauth2": {
-  "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
+  "client_id": "你的客户端ID.apps.googleusercontent.com",
   "scopes": ["https://www.googleapis.com/auth/drive.appdata"]
 }
 ```
 
-## Step 7: Rebuild and Reload
+## 第 7 步：重新构建并加载
 
-1. `pnpm build`
-2. chrome://extensions > reload the extension
+1. 运行 `pnpm build`
+2. 打开 `chrome://extensions`，点击扩展的刷新按钮
 
-## Step 8: Publish (for production)
+## 第 8 步：发布（生产环境）
 
-1. OAuth consent screen > Publish App
-2. Or keep in testing mode (only test users can sign in)
+1. 回到 Google Cloud Console > **OAuth 同意屏幕**
+2. 点击 **发布应用**，所有用户即可使用
+3. 如果保留测试模式，只有第 3 步添加的测试用户可以登录
 
-## How It Works
+## 工作原理
 
-- `chrome.identity.getAuthToken()` handles OAuth flow automatically
-- Data stored in user's Drive appDataFolder (hidden, private)
-- Each user's data isolated in their own Google account
-- `drive.appdata` scope: cannot access any other Drive files
-- Chrome manages token refresh automatically
+- 扩展使用 `chrome.identity.getAuthToken()` 自动处理 OAuth 授权流程
+- 数据存储在用户 Google Drive 的 `appDataFolder` 中（隐藏、私有）
+- 每个用户的数据隔离存储在各自的 Google 账号中
+- `drive.appdata` 范围：扩展无法访问用户 Drive 中的任何其他文件
+- Chrome 自动管理 token 刷新，无需手动处理
 
-## Troubleshooting
+## 常见问题
 
-| Issue | Solution |
-|-------|----------|
-| Auth failed | Client ID or extension ID mismatch |
-| No backup found | Upload first from another device |
-| OAuth popup blocked | Check chrome://extensions errors |
-| Consent screen warning | App in testing mode, publish or add test user |
+| 问题 | 解决方法 |
+|------|----------|
+| 点击同步提示"Auth failed" | 客户端 ID 或扩展 ID 不匹配 |
+| 下载时提示"No backup found" | 需要先在另一台设备上传数据 |
+| OAuth 弹窗不出现 | 检查 `chrome://extensions` 是否有错误 |
+| 同意屏幕显示警告 | 应用处于测试模式，发布应用或添加测试用户 |
