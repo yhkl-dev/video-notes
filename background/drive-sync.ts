@@ -49,6 +49,8 @@ export async function uploadBackup(
   try {
     const existing = await findExistingFile(token)
     console.log("[DriveSync] existing file:", existing?.id || "none")
+
+    if (existing) {
       const res = await fetch(
         `${DRIVE_UPLOAD_URL}/${existing.id}?uploadType=media`,
         {
