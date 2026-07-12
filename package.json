@@ -1,7 +1,7 @@
 {
   "name": "video-notes",
   "displayName": "Video notes",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Capture, annotate, and replay video segments. Markdown notes with screenshots, tags, search, export, dark mode, and keyboard shortcuts.",
   "author": "kaiyang939325@gmail.com",
   "scripts": {
