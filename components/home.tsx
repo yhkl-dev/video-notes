@@ -52,6 +52,14 @@ export default function Home({
   const { addToast } = useToast()
   const [loopSlices, setLoopSlices] = useState<Set<string>>(new Set())
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [openMenu, setOpenMenu] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!openMenu) return
+    const close = () => setOpenMenu(null)
+    document.addEventListener("click", close)
+    return () => document.removeEventListener("click", close)
+  }, [openMenu])
   const [settingEnd, setSettingEnd] = useState(false)
   const [imageCache, setImageCache] = useState<Map<string, string>>(new Map())
   const [undoStack, setUndoStack] = useState<VideoSlice[][]>([])
@@ -1446,205 +1454,127 @@ export default function Home({
               )}
               <div className="flex-1" />
               <div className="flex items-center gap-0.5">
-                <div className="relative group">
+                <div className="relative">
                   <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={handleBatchExport}
+                    className="flex items-center gap-0.5 px-2 py-1.5 text-[11px] rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setOpenMenu(openMenu === "export" ? null : "export")
+                    }}
                     type="button">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
+                    Export ▾
                   </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    {chrome.i18n.getMessage("exportSelected")}
-                  </span>
+                  {openMenu === "export" && (
+                    <div className="absolute top-full mt-1 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 z-40 w-36">
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          handleBatchExport()
+                          setOpenMenu(null)
+                        }}>
+                        Export JSON
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          handleMarkdownExport()
+                          setOpenMenu(null)
+                        }}>
+                        Export Markdown
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          handleSrtExport()
+                          setOpenMenu(null)
+                        }}>
+                        Export SRT
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="relative group">
+                <div className="relative">
                   <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={handleMarkdownExport}
+                    className="flex items-center gap-0.5 px-2 py-1.5 text-[11px] rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setOpenMenu(openMenu === "import" ? null : "import")
+                    }}
                     type="button">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                      />
-                    </svg>
+                    Import ▾
                   </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    {chrome.i18n.getMessage("exportMarkdown")}
-                  </span>
+                  {openMenu === "import" && (
+                    <div className="absolute top-full mt-1 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 z-40 w-36">
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          fileInputRef.current?.click()
+                          setOpenMenu(null)
+                        }}>
+                        Import JSON
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          handleImportYoutubeChapters()
+                          setOpenMenu(null)
+                        }}>
+                        YT Chapters
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={handleImport}
+                  />
                 </div>
-                <div className="relative group">
+                <button
+                  className="px-2 py-1.5 text-[11px] rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  onClick={handleMergeSelected}
+                  type="button"
+                  title={chrome.i18n.getMessage("mergeSelected")}>
+                  Merge
+                </button>
+                <div className="relative">
                   <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={handleMergeSelected}
+                    className="flex items-center gap-0.5 px-2 py-1.5 text-[11px] rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setOpenMenu(openMenu === "backup" ? null : "backup")
+                    }}
                     type="button">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-                      />
-                    </svg>
+                    Backup ▾
                   </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    {chrome.i18n.getMessage("mergeSelected")}
-                  </span>
-                </div>
-                <div className="relative group">
-                  <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={handleSrtExport}
-                    type="button"
-                    title="Export SRT">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                  </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    Export SRT
-                  </span>
-                </div>
-                <div className="relative group">
-                  <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={() => fileInputRef.current?.click()}
-                    type="button">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                      />
-                    </svg>
-                  </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    {chrome.i18n.getMessage("importSlices")}
-                  </span>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={handleImport}
-                />
-                <div className="relative group">
-                  <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={handleBackupAll}
-                    type="button"
-                    title="Backup all data">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                  </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    Backup
-                  </span>
-                </div>
-                <div className="relative group">
-                  <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={() => backupInputRef.current?.click()}
-                    type="button"
-                    title="Restore backup">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                      />
-                    </svg>
-                  </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    Restore
-                  </span>
-                </div>
-                <input
-                  ref={backupInputRef}
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={handleRestoreBackup}
-                />
-                <div className="relative group">
-                  <button
-                    className="p-1.5 rounded-md text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    onClick={handleImportYoutubeChapters}
-                    type="button"
-                    title="Import YouTube chapters">
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </button>
-                  <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                    YT Chapters
-                  </span>
+                  {openMenu === "backup" && (
+                    <div className="absolute top-full mt-1 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 z-40 w-36">
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          handleBackupAll()
+                          setOpenMenu(null)
+                        }}>
+                        Backup All
+                      </button>
+                      <button
+                        className="w-full text-left px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-gray-200"
+                        onClick={() => {
+                          backupInputRef.current?.click()
+                          setOpenMenu(null)
+                        }}>
+                        Restore
+                      </button>
+                    </div>
+                  )}
+                  <input
+                    ref={backupInputRef}
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={handleRestoreBackup}
+                  />
                 </div>
               </div>
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
