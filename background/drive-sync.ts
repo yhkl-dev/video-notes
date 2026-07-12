@@ -39,7 +39,7 @@ async function findExistingFile(
 export async function uploadBackup(
   jsonData: string
 ): Promise<{ success: boolean; error?: string }> {
-  const token = await getToken()
+  const token = await getToken(true)
   if (!token) return { success: false, error: "Auth failed" }
 
   try {
@@ -86,7 +86,7 @@ export async function downloadBackup(): Promise<{
   modifiedTime?: string
   error?: string
 }> {
-  const token = await getToken()
+  const token = await getToken(true)
   if (!token) return { data: null, error: "Auth failed" }
 
   try {
@@ -110,7 +110,7 @@ export async function getSyncStatus(): Promise<{
   email?: string
   error?: string
 }> {
-  const token = await getToken()
+  const token = await getToken(true)
   if (!token) return { error: "Not authenticated" }
 
   try {
@@ -129,7 +129,7 @@ export async function getSyncStatus(): Promise<{
 
 export async function signOut(): Promise<void> {
   try {
-    const token = await getToken()
+    const token = await getToken(false)
     if (token) {
       await fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`)
     }
